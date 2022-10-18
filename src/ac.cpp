@@ -1,3 +1,6 @@
+
+/* Standard Library */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -16,7 +19,7 @@ using namespace std;
 
 
 namespace accountable_confirmer{
-    
+
     struct AccountableConfirmer ac;
     struct BestEffortBroadcast beb;
 
@@ -49,15 +52,15 @@ namespace accountable_confirmer{
 
     void InitBEB (struct BestEffortBroadcast* beb){
         beb->start = 0;
-    
+
     }
 
     void Broadcast(struct BestEffortBroadcast* beb, struct BroadcastMsg BMsg) {
-        // 
+        //
     }
-    
+
     void Deliver(struct BestEffortBroadcast* beb, struct AccountableConfirmer* ac) {
-        if 
+        if
     }
 
 

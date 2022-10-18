@@ -1,3 +1,5 @@
+#ifndef ACCOUNTABLE_CONFIRMER_AC_H
+#define ACCOUNTABLE_CONFIRMER_AC_H
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -7,14 +9,10 @@
 #include <iostream>
 #include <unordered_map>
 
-#include "hotstuff/crypto.h"
-
 using namespace std;
 
-
-
 namespace accountable_confirmer{
-    
+
     struct Process {
         pid_t P;
         // Private key
@@ -34,7 +32,7 @@ namespace accountable_confirmer{
     struct BroadcastMsg {
         // need to contain all kind of message to be broadcasted
     };
-    
+
     struct DeliverMsg {
         // need to contain all kind of message to be delivered
     };
@@ -44,7 +42,7 @@ namespace accountable_confirmer{
         int value;
         int shareSig;
         // ShareSignature(v)
-        
+
     };
 
 
@@ -64,5 +62,6 @@ namespace accountable_confirmer{
     void InitBEB(struct BestEffortBroadcast* beb);
     void Broadcast(struct BestEffortBroadcast* beb, struct BroadcastMsg BMsg);
     void Deliver(struct BestEffortBroadcast* beb, struct AccountableConfirmer* ac);
-    
+
 }
+#endif //ACCOUNTABLE_CONFIRMER_AC_H
