@@ -10,7 +10,7 @@
 	the order of an elliptic curve over Fp is Fr
 */
 #ifndef MCLBN_FP_UNIT_SIZE
-    #define MCLBN_FP_UNIT_SIZE 6
+	#error "define MCLBN_FP_UNIT_SIZE 4(, 6 or 8)"
 #endif
 #ifndef MCLBN_FR_UNIT_SIZE
 	#define MCLBN_FR_UNIT_SIZE MCLBN_FP_UNIT_SIZE

@@ -1,15 +1,10 @@
 /* Import BLS */
-#define BLS_ETH
-#include "bls/bls.h"
-#include "mcl/bn_c384_256.h"
+#include "bls.h"
 
 #include <stdio.h>
 
-#define MCLBN_FP_UNIT_SIZE 6
-
 using namespace std;
 namespace bls {
-
 
     void Init() {
         // init library at once before calling the other APIs
