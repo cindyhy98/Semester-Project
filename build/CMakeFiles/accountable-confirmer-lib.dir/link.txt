@@ -1,2 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/ar qc libaccountable-confirmer-lib.a "CMakeFiles/accountable-confirmer-lib.dir/main.cpp.o"
-/Library/Developer/CommandLineTools/usr/bin/ranlib libaccountable-confirmer-lib.a
