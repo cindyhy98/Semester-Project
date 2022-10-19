@@ -4,10 +4,10 @@
 /* Import BLS */
 #define BLS_ETH
 #include "mcl/bn_c384_256.h"
-#include <bls/bls.h>
+#include "bls/bls.h"
 
 
-namespace bls{
+namespace testbls{
     void Init();
     void KeyGen(blsSecretKey sec, blsPublicKey pub);
     blsSignature Sign(blsSecretKey sec, char msg[]);

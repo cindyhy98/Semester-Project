@@ -1,13 +1,13 @@
 /* Import BLS */
-#include "bls.h"
-
+#include "testbls.h"
 #include <stdio.h>
 
 using namespace std;
-namespace bls {
+namespace testbls {
 
     void Init() {
         // init library at once before calling the other APIs
+        printf("MCLBN_COMPILED_TIME_VAR = %d\n", MCLBN_COMPILED_TIME_VAR);
         int err = blsInit(MCL_BLS12_381, MCLBN_COMPILED_TIME_VAR);
 
         if (err != 0) {

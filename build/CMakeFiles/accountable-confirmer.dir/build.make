@@ -69,19 +69,19 @@ include CMakeFiles/accountable-confirmer.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/accountable-confirmer.dir/flags.make
 
-CMakeFiles/accountable-confirmer.dir/src/bls.cpp.o: CMakeFiles/accountable-confirmer.dir/flags.make
-CMakeFiles/accountable-confirmer.dir/src/bls.cpp.o: ../src/bls.cpp
-CMakeFiles/accountable-confirmer.dir/src/bls.cpp.o: CMakeFiles/accountable-confirmer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/accountable-confirmer.dir/src/bls.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/accountable-confirmer.dir/src/bls.cpp.o -MF CMakeFiles/accountable-confirmer.dir/src/bls.cpp.o.d -o CMakeFiles/accountable-confirmer.dir/src/bls.cpp.o -c /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/bls.cpp
+CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.o: CMakeFiles/accountable-confirmer.dir/flags.make
+CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.o: ../src/testbls.cpp
+CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.o: CMakeFiles/accountable-confirmer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.o -MF CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.o.d -o CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.o -c /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/testbls.cpp
 
-CMakeFiles/accountable-confirmer.dir/src/bls.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/accountable-confirmer.dir/src/bls.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/bls.cpp > CMakeFiles/accountable-confirmer.dir/src/bls.cpp.i
+CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/testbls.cpp > CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.i
 
-CMakeFiles/accountable-confirmer.dir/src/bls.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/accountable-confirmer.dir/src/bls.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/bls.cpp -o CMakeFiles/accountable-confirmer.dir/src/bls.cpp.s
+CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/testbls.cpp -o CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.s
 
 CMakeFiles/accountable-confirmer.dir/main.cpp.o: CMakeFiles/accountable-confirmer.dir/flags.make
 CMakeFiles/accountable-confirmer.dir/main.cpp.o: ../main.cpp
@@ -99,13 +99,13 @@ CMakeFiles/accountable-confirmer.dir/main.cpp.s: cmake_force
 
 # Object files for target accountable-confirmer
 accountable__confirmer_OBJECTS = \
-"CMakeFiles/accountable-confirmer.dir/src/bls.cpp.o" \
+"CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.o" \
 "CMakeFiles/accountable-confirmer.dir/main.cpp.o"
 
 # External object files for target accountable-confirmer
 accountable__confirmer_EXTERNAL_OBJECTS =
 
-accountable-confirmer: CMakeFiles/accountable-confirmer.dir/src/bls.cpp.o
+accountable-confirmer: CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.o
 accountable-confirmer: CMakeFiles/accountable-confirmer.dir/main.cpp.o
 accountable-confirmer: CMakeFiles/accountable-confirmer.dir/build.make
 accountable-confirmer: /usr/local/lib/libbls384.dylib

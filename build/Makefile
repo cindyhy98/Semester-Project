@@ -153,29 +153,29 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-src/bls.o: src/bls.cpp.o
-.PHONY : src/bls.o
+src/testbls.o: src/testbls.cpp.o
+.PHONY : src/testbls.o
 
 # target to build an object file
-src/bls.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/bls.cpp.o
-.PHONY : src/bls.cpp.o
+src/testbls.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.o
+.PHONY : src/testbls.cpp.o
 
-src/bls.i: src/bls.cpp.i
-.PHONY : src/bls.i
+src/testbls.i: src/testbls.cpp.i
+.PHONY : src/testbls.i
 
 # target to preprocess a source file
-src/bls.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/bls.cpp.i
-.PHONY : src/bls.cpp.i
+src/testbls.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.i
+.PHONY : src/testbls.cpp.i
 
-src/bls.s: src/bls.cpp.s
-.PHONY : src/bls.s
+src/testbls.s: src/testbls.cpp.s
+.PHONY : src/testbls.s
 
 # target to generate assembly for a file
-src/bls.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/bls.cpp.s
-.PHONY : src/bls.cpp.s
+src/testbls.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/testbls.cpp.s
+.PHONY : src/testbls.cpp.s
 
 # Help Target
 help:
@@ -189,9 +189,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... src/bls.o"
-	@echo "... src/bls.i"
-	@echo "... src/bls.s"
+	@echo "... src/testbls.o"
+	@echo "... src/testbls.i"
+	@echo "... src/testbls.s"
 .PHONY : help
 
 

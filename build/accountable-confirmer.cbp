@@ -24,6 +24,8 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer"/>
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
 					<Add directory="/usr/local/include"/>
@@ -46,6 +48,8 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer"/>
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
 					<Add directory="/usr/local/include"/>
@@ -85,7 +89,7 @@
 		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp">
 			<Option target="accountable-confirmer"/>
 		</Unit>
-		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/bls.cpp">
+		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/testbls.cpp">
 			<Option target="accountable-confirmer"/>
 		</Unit>
 		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/CMakeLists.txt">
