@@ -31,6 +31,7 @@ namespace accountable_confirmer{
         p->value = PROPOSE_VALUE_1;
 
         // each process now has it own secret key and public key
+        testbls::Init();
         testbls::KeyGen(&p->sec, &p->pub);
     }
 
@@ -43,12 +44,13 @@ namespace accountable_confirmer{
         testbls::Sign(&p->sig, &p->sec, msg);
     }
 
-    // [Done]
+    // TODO: Sign the whole message with PKI private key (Crypto++/OpenSSL)
     void CreateSubmitMsg(struct Process* p){
         p->msg.value = p->value;
-        p->msg.sig = p->sig;
+        p->msg.sigVal = p->sig;
 
-        
+        // sign the msg with its private key
+//        testbls::Sign(&p->sig, &p->sec, p->msg);
     }
 
 

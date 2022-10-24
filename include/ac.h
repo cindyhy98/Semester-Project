@@ -26,7 +26,8 @@ namespace accountable_confirmer{
 //    };
     struct MsgSubmit {
         int value;
-        blsSignature sig;   // Signature for the value
+        blsSignature sigVal;    // Signature for the value
+        blsSignature sigMsg;    // Signature for the whole message
     };
 
     struct Process {
@@ -59,8 +60,6 @@ namespace accountable_confirmer{
     };
 
 
-
-
 //    struct BestEffortBroadcast {
 //        int start;
 //        struct MsgSubmit submit;
@@ -74,7 +73,7 @@ namespace accountable_confirmer{
     /* Create partial signature */
     void ShareSign(struct Process* p);
 
-    /* Create submit message and signed it with the private key of the process */
+    /* Create submit message and sign it with the private key of the process */
     void CreateSubmitMsg(struct Process* p);
 
 
