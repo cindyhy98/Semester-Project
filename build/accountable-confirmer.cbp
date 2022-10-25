@@ -30,7 +30,7 @@
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/bls"/>
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/mcl"/>
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/boost_1_80_0"/>
-					<Add directory="/usr/local/opt/openssl/lib/libssl"/>
+					<Add directory="/usr/local/opt/openssl@1.1/include"/>
 				</Compiler>
 				<MakeCommands>
 					<Build command="/usr/local/bin/gmake -f &quot;/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/Makefile&quot;  VERBOSE=1 accountable-confirmer"/>
@@ -52,7 +52,7 @@
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/bls"/>
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/mcl"/>
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/boost_1_80_0"/>
-					<Add directory="/usr/local/opt/openssl/lib/libssl"/>
+					<Add directory="/usr/local/opt/openssl@1.1/include"/>
 				</Compiler>
 				<MakeCommands>
 					<Build command="/usr/local/bin/gmake -f &quot;/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/Makefile&quot;  VERBOSE=1 accountable-confirmer/fast"/>

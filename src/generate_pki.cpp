@@ -26,4 +26,5 @@ int main() {
     FILE* pkey_file = fopen("rootca.key", "wb");
     PEM_write_PrivateKey(pkey_file, pkey, nullptr, nullptr, 0, nullptr, nullptr);
     fclose(pkey_file);
+    return 0;
 }

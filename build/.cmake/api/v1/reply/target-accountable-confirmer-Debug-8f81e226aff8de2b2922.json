@@ -32,12 +32,6 @@
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 45,
-				"parent" : 0
-			},
-			{
-				"command" : 1,
-				"file" : 0,
 				"line" : 48,
 				"parent" : 0
 			},
@@ -94,24 +88,24 @@
 					"path" : "/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer"
 				},
 				{
-					"backtrace" : 4,
+					"backtrace" : 3,
 					"path" : "/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include"
 				},
 				{
-					"backtrace" : 5,
+					"backtrace" : 4,
 					"path" : "/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/bls"
 				},
 				{
-					"backtrace" : 6,
+					"backtrace" : 5,
 					"path" : "/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/mcl"
 				},
 				{
-					"backtrace" : 7,
+					"backtrace" : 6,
 					"path" : "/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/boost_1_80_0"
 				},
 				{
-					"backtrace" : 8,
-					"path" : "/usr/local/opt/openssl/lib/libssl"
+					"backtrace" : 7,
+					"path" : "/usr/local/opt/openssl@1.1/include"
 				}
 			],
 			"language" : "CXX",
@@ -144,16 +138,6 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "/usr/local/opt/openssl/lib/libssl",
-				"role" : "libraries"
-			},
-			{
-				"backtrace" : 2,
-				"fragment" : "/usr/local/opt/openssl/lib/libcrypto",
-				"role" : "libraries"
-			},
-			{
-				"backtrace" : 3,
 				"fragment" : "/usr/local/lib/libbls384_256.dylib",
 				"role" : "libraries"
 			}

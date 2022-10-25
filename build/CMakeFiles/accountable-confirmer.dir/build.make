@@ -92,8 +92,6 @@ accountable__confirmer_EXTERNAL_OBJECTS =
 
 accountable-confirmer: CMakeFiles/accountable-confirmer.dir/src/generate_pki.cpp.o
 accountable-confirmer: CMakeFiles/accountable-confirmer.dir/build.make
-accountable-confirmer: /usr/local/opt/openssl/lib/libssl
-accountable-confirmer: /usr/local/opt/openssl/lib/libcrypto
 accountable-confirmer: /usr/local/lib/libbls384_256.dylib
 accountable-confirmer: CMakeFiles/accountable-confirmer.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable accountable-confirmer"

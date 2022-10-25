@@ -15,9 +15,9 @@ include_directories(include/mcl)
 
 # include boost -> Yet later need to change this setting to an universal one
 set(Boost_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boost_1_80_0)
-#set(OPENSSL_ROOT_DIR /usr/local/opt)
-set(OPENSSL_INCLUDE_DIR /usr/local/opt/openssl/lib/libssl)
-set(OPENSSL_CRYPTO_LIBRARY /usr/local/opt/openssl/lib/libcrypto)
+set(OPENSSL_ROOT_DIR /usr/local/opt/openssl@1.1)
+#set(OPENSSL_INCLUDE_DIR /usr/local/opt/openssl/lib/libssl)
+#set(OPENSSL_CRYPTO_LIBRARY /usr/local/opt/openssl/lib/libcrypto)
 
 find_package(Boost)
 IF (Boost_FOUND)
@@ -42,7 +42,7 @@ else()
     message(STATUS "OpenSSL Not Found")
 endif()
 
-target_link_libraries(accountable-confirmer ${OPENSSL_INCLUDE_DIR} ${OPENSSL_CRYPTO_LIBRARY})
+#target_link_libraries(accountable-confirmer ${OPENSSL_INCLUDE_DIR} ${OPENSSL_CRYPTO_LIBRARY})
 
 find_library(BLS bls384_256 lib)
 target_link_libraries(accountable-confirmer ${BLS})
