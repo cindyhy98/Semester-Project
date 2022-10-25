@@ -82,6 +82,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp">
+			<Option target="accountable-confirmer"/>
+		</Unit>
 		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/generate_pki.cpp">
 			<Option target="accountable-confirmer"/>
 		</Unit>

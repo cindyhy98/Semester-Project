@@ -16,8 +16,9 @@ include_directories(include/mcl)
 # include boost -> Yet later need to change this setting to an universal one
 set(Boost_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boost_1_80_0)
 set(OPENSSL_ROOT_DIR /usr/local/opt/openssl@1.1)
+set(OPENSSL_USE_STATIC_LIBS TRUE)
 #set(OPENSSL_INCLUDE_DIR /usr/local/opt/openssl/lib/libssl)
-#set(OPENSSL_CRYPTO_LIBRARY /usr/local/opt/openssl/lib/libcrypto)
+#set(OPENSSL_CRYPTO_LIBRARY /usr/local/opt/openssl@1.1/lib/libcrypto)
 
 find_package(Boost)
 IF (Boost_FOUND)
@@ -28,21 +29,22 @@ endif()
 
 
 # executable
-#add_executable(accountable-confirmer src/testbls.cpp main.cpp src/broadcast.cpp include/broadcast.h)
-add_executable(accountable-confirmer src/generate_pki.cpp )
+#add_executable(accountable-confirmer src/testbls.cpp main.cpp )
+add_executable(accountable-confirmer src/generate_pki.cpp main.cpp)
 
 
 # Search OpenSSL
 find_package(OpenSSL REQUIRED)
 if( OpenSSL_FOUND )
     include_directories(${OPENSSL_INCLUDE_DIR})
-    link_directories(${OPENSSL_LIBRARIES})
+#    include_directories(${OPENSSL_CRYPTO_LIBRARY})
+#    link_directories(${OPENSSL_LIBRARIES})
     message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
 else()
     message(STATUS "OpenSSL Not Found")
 endif()
 
-#target_link_libraries(accountable-confirmer ${OPENSSL_INCLUDE_DIR} ${OPENSSL_CRYPTO_LIBRARY})
+target_link_libraries(accountable-confirmer OpenSSL::Crypto)
 
 find_library(BLS bls384_256 lib)
 target_link_libraries(accountable-confirmer ${BLS})
