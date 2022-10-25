@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/accountable-confirmer.dir/src/broadcast.cpp.o"
-  "CMakeFiles/accountable-confirmer.dir/src/broadcast.cpp.o.d"
+  "CMakeFiles/accountable-confirmer.dir/src/generate_pki.cpp.o"
+  "CMakeFiles/accountable-confirmer.dir/src/generate_pki.cpp.o.d"
   "accountable-confirmer"
   "accountable-confirmer.pdb"
 )

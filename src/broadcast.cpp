@@ -1,5 +1,6 @@
 // Using Boost Library for broadcast!
 #include <boost/lambda/lambda.hpp>
+#include <boost/beast/core.hpp>
 #include <iostream>
 #include <iterator>
 #include <algorithm>
