@@ -4,7 +4,6 @@
 /* Internal Library */
 #include "ac.h"
 
-
 using namespace std;
 
 #define NUMBER_OF_THREAD 4
@@ -21,42 +20,45 @@ namespace accountable_confirmer{
     struct AccountableConfirmer ac;
 //    struct BestEffortBroadcast beb;
     struct Process p;
+    struct message::MsgSubmit m;
 
 
     // [Done]
     void InitProcess(struct Process* p){
         p->id = getpid();
 
-        // TODO: How to choose propose value ??
-        p->value = PROPOSE_VALUE_1;
+        // each process now has it own secret key and public key for enc/dec the message it commits
+        ac_bls::Init();
+        ac_bls::KeyGen(&p->aggregateKey);
 
-        // each process now has it own secret key and public key
-        testbls::Init();
-        testbls::KeyGen(&p->sec, &p->pub);
+        //each process also has a pair of PKI secret key and PKI public key
+        ecdsa_pki::Init(&p->pkiKey);
+        ecdsa_pki::KeyGen(&p->pkiKey);
     }
 
     // [Done]
     void ShareSign(struct Process* p){
-        char msg[MAX_DIGIT + sizeof(char)];
-        sprintf(msg, "%d", p->value);
+        char valueToSign[MAX_DIGIT + sizeof(char)];
+        sprintf(valueToSign, "%d", p->msg.value);
 
         // now the signature for p->value is stored in Process P
-        testbls::Sign(&p->sig, &p->sec, msg);
+        ac_bls::Sign(&p->msg.sigVal, &p->aggregateKey, valueToSign);
     }
 
-    // TODO: Sign the whole message with PKI private key (Crypto++/OpenSSL)
-    void CreateSubmitMsg(struct Process* p){
-        p->msg.value = p->value;
-        p->msg.sigVal = p->sig;
+    // [Done] Sign the whole message with PKI private key (secp256k1)
+    void SubmitMsgSign(struct Process* p){
+        // First, generate a SHA256 message hash for p->msg and store it in hash
+        unsigned char msgHash[SHA256_DIGEST_LENGTH];
+        message::GenerateMsgHash(&p->msg, msgHash);
 
-        // sign the msg with its private key
-//        testbls::Sign(&p->sig, &p->sec, p->msg);
+        // sign the msg with its PKI key
+        ecdsa_pki::Sign(&p->pkiKey, msgHash);
     }
 
 
     // TODO: What's the data structure?
     void InitAC(struct AccountableConfirmer* ac) {
-        ac->value = 0;
+        ac->msg.value = 0;
         ac->confirm = false;
         ac->from.clear();
         ac->lightCert.clear();
@@ -67,7 +69,7 @@ namespace accountable_confirmer{
 
 
     bool Submit(struct AccountableConfirmer* ac, int v) {
-        ac->value = v;
+        ac->msg.value = v;
         return true;
     }
 
@@ -75,7 +77,7 @@ namespace accountable_confirmer{
         if (ac->from.size() >= NUMBER_OF_THREAD - NUMBER_OF_FAULTY){
             ac->confirm = true;
         }
-        return ac->value;
+        return ac->msg.value;
     }
 
     void Detect(struct AccountableConfirmer* ac) {

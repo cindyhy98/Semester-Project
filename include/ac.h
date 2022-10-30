@@ -11,8 +11,14 @@
 #include <unordered_map>
 #include <vector>
 
+/* External Library */
+#include <openssl/sha.h>
+
 /* Internal Library*/
-#include "testbls.h"
+#include "ac_bls.h"
+#include "message.h"
+#include "esdsa_pki.h"
+
 
 #define NUMBER_OF_PROCESS size_t(4)
 
@@ -24,23 +30,17 @@ namespace accountable_confirmer{
 //        vector<blsSecretKey> secVec;
 //        vector<blsPublicKey> pubVec;
 //    };
-    struct MsgSubmit {
-        int value;
-        blsSignature sigVal;    // Signature for the value
-        blsSignature sigMsg;    // Signature for the whole message
-    };
+
 
     struct Process {
         pid_t id;
-        int value;          // The value this process submits
-        blsSecretKey sec;   // Private key
-        blsPublicKey pub;   // Public Key
-        blsSignature sig;   // Signature
-        MsgSubmit msg;
+        ac_bls::Key aggregateKey;   // for ShareSigned, ShareVerify
+        ecdsa_pki::Key pkiKey;      //pki
+        message::MsgSubmit msg;
     };
 
     struct AccountableConfirmer {
-        int value;
+        message::MsgSubmit msg;
         bool confirm;
 
         set<pid_t> from;
@@ -73,11 +73,11 @@ namespace accountable_confirmer{
     /* Create partial signature */
     void ShareSign(struct Process* p);
 
-    /* Create submit message and sign it with the private key of the process */
-    void CreateSubmitMsg(struct Process* p);
+    /* Create submit message and sign it with the PKI private key of the process */
+    void SubmitMsgSign(struct Process* p);
 
 
-
+    /* Accountable Confirmer main functions */
     void InitAC(struct AccountableConfirmer* ac);
     bool Submit(struct AccountableConfirmer* ac, int v);
     int Confirm(struct AccountableConfirmer* ac);

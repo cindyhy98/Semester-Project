@@ -30,6 +30,7 @@
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/bls"/>
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/mcl"/>
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/boost_1_80_0"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/secp256k1/include"/>
 					<Add directory="/usr/local/opt/openssl@1.1/include"/>
 				</Compiler>
 				<MakeCommands>
@@ -52,6 +53,7 @@
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/bls"/>
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/mcl"/>
 					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/boost_1_80_0"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/secp256k1/include"/>
 					<Add directory="/usr/local/opt/openssl@1.1/include"/>
 				</Compiler>
 				<MakeCommands>
@@ -85,7 +87,7 @@
 		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp">
 			<Option target="accountable-confirmer"/>
 		</Unit>
-		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/generate_pki.cpp">
+		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ac.cpp">
 			<Option target="accountable-confirmer"/>
 		</Unit>
 		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/CMakeLists.txt">

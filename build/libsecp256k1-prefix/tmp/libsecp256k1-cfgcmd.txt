@@ -1,0 +1,1 @@
+cmd='/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/secp256k1/autogen.sh;COMMAND;/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/secp256k1/configure;--disable-shared;--with-pic;--with-bignum=no;--enable-module-recovery'

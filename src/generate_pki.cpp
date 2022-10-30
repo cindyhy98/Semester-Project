@@ -2,12 +2,12 @@
 #include <iostream>
 #include "generate_pki.h"
 
-namespace pki {
+namespace rsapki {
     EVP_PKEY* generate_key() {
+
         /* Allocate memory for the EVP_PKEY structure. */
         EVP_PKEY * pkey = EVP_PKEY_new();
-        if(!pkey)
-        {
+        if(!pkey) {
             std::cerr << "Unable to create EVP_PKEY structure." << std::endl;
             return NULL;
         }
@@ -16,10 +16,9 @@ namespace pki {
         RSA* rsa = RSA_new();
         BIGNUM* bne = BN_new();
         BN_set_word(bne, RSA_F4);
-        RSA_generate_key_ex(rsa, 2048, bne, NULL);
+        RSA_generate_key_ex(rsa, 2048, bne, nullptr);
 //
-        if(!EVP_PKEY_assign_RSA(pkey, rsa))
-        {
+        if(!EVP_PKEY_assign_RSA(pkey, rsa)) {
             std::cerr << "Unable to generate 2048-bit RSA key." << std::endl;
             EVP_PKEY_free(pkey);
             return NULL;

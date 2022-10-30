@@ -28,9 +28,6 @@ endif()
 
 
 
-# executable
-#add_executable(accountable-confirmer src/testbls.cpp main.cpp )
-add_executable(accountable-confirmer src/generate_pki.cpp main.cpp)
 
 
 # Search OpenSSL
@@ -44,7 +41,30 @@ else()
     message(STATUS "OpenSSL Not Found")
 endif()
 
-target_link_libraries(accountable-confirmer OpenSSL::Crypto)
+#include(ExternalProject)
+include_directories(secp256k1/include)
+#ExternalProject_Add(libsecp256k1
+#        SOURCE_DIR secp256k1
+#        CONFIGURE_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/secp256k1/autogen.sh
+#        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/secp256k1/configure --disable-shared --with-pic --with-bignum=no --enable-module-recovery
+#        BUILD_COMMAND make
+#        INSTALL_COMMAND ""
+#        BUILD_IN_SOURCE 1)
+
+add_library(secp256k1 STATIC IMPORTED)
+set_target_properties(
+        secp256k1
+        PROPERTIES IMPORTED_LOCATION
+        ${CMAKE_CURRENT_SOURCE_DIR}/secp256k1/.libs/libsecp256k1.a)
+add_dependencies(secp256k1 libsecp256k1)
+
+
+# executable
+add_executable(accountable-confirmer src/ac.cpp main.cpp)
+#add_executable(accountable-confirmer src/generate_pki.cpp main.cpp)
+
+
+target_link_libraries(accountable-confirmer OpenSSL::Crypto secp256k1)
 
 find_library(BLS bls384_256 lib)
 target_link_libraries(accountable-confirmer ${BLS})

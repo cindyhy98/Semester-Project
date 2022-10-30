@@ -1,9 +1,12 @@
-/* Import BLS */
-#include "testbls.h"
+/* Standard Library */
 #include <stdio.h>
 
+/* Import BLS */
+#include "ac_bls.h"
+
 using namespace std;
-namespace testbls {
+namespace ac_bls {
+    struct Key k;
 
     void Init() {
         // init library at once before calling the other APIs
@@ -20,27 +23,27 @@ namespace testbls {
         printf("[Init] Successful! \n");
     }
 
-    void KeyGen(blsSecretKey *sec, blsPublicKey *pub) {
+    void KeyGen(Key* k) {
         // init SecretKey sec by random number
-        blsSecretKeySetByCSPRNG(sec);
+        blsSecretKeySetByCSPRNG(&k->sec);
 
         // get PublicKey pub from SecretKey sec
-        blsGetPublicKey(pub, sec);
+        blsGetPublicKey(&k->pub, &k->sec);
 
         printf("[KeyGen] PublicKey from SecretKey\n");
     }
 
-    void Sign(blsSignature *sig, blsSecretKey *sec, char msg[]) {
+    void Sign(blsSignature *sig, Key* k, char msg[]) {
         const size_t msgSize = strlen(msg);
 
-        blsSign(sig, sec, msg, msgSize);
+        blsSign(sig, &k->sec, msg, msgSize);
         printf("[Sign] Make a Signature\n");
     }
 
     /* return 1 if it is valid else 0 */
-    int Verify(blsSignature sig, blsPublicKey pub, char msg[]) {
+    int Verify(blsSignature sig, Key* k, char msg[]) {
         const size_t msgSize = strlen(msg);
-        return blsVerify(&sig, &pub, msg, msgSize);
+        return blsVerify(&sig, &k->pub, msg, msgSize);
     }
 
     void AggSign(blsSignature *aggSig, const blsSignature *sigVec, mclSize n) {
