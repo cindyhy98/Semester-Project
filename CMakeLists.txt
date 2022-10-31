@@ -60,7 +60,7 @@ add_dependencies(secp256k1 libsecp256k1)
 
 
 # executable
-add_executable(accountable-confirmer src/ac.cpp main.cpp)
+add_executable(accountable-confirmer main.cpp)
 #add_executable(accountable-confirmer src/generate_pki.cpp main.cpp)
 
 

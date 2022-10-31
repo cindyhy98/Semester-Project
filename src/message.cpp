@@ -2,6 +2,7 @@
 
 using namespace std;
 namespace message {
+
     struct MsgSubmit m;
 
     void GenerateMsgHash(struct MsgSubmit* m, unsigned char* hash){

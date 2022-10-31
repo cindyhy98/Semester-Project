@@ -16,8 +16,8 @@ namespace ac_bls{
 
     void Init();
     void KeyGen(Key* k);
-    void Sign(blsSignature *sig, Key* k, char msg[]);
-    int Verify(blsSignature sig, Key* k, char msg[]);
+    void Sign(Key* k, blsSignature *sig, char msg[]);
+    int Verify(Key* k, blsSignature sig, char msg[]);
     void AggSign(blsSignature *aggSig, const blsSignature *sigVec, mclSize n);
     int FastAggSignVerify(const blsSignature *sig, const blsPublicKey *pubVec, mclSize n,  const void *msg, mclSize msgSize);
     int AggSignVerify(const blsSignature *sig, const blsPublicKey *pubVec, const void *msgVec, mclSize msgSize, mclSize n);

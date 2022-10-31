@@ -33,7 +33,7 @@ namespace ac_bls {
         printf("[KeyGen] PublicKey from SecretKey\n");
     }
 
-    void Sign(blsSignature *sig, Key* k, char msg[]) {
+    void Sign(Key* k, blsSignature *sig, char msg[]) {
         const size_t msgSize = strlen(msg);
 
         blsSign(sig, &k->sec, msg, msgSize);
@@ -41,7 +41,7 @@ namespace ac_bls {
     }
 
     /* return 1 if it is valid else 0 */
-    int Verify(blsSignature sig, Key* k, char msg[]) {
+    int Verify(Key* k, blsSignature sig, char msg[]) {
         const size_t msgSize = strlen(msg);
         return blsVerify(&sig, &k->pub, msg, msgSize);
     }

@@ -153,30 +153,6 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-src/ac.o: src/ac.cpp.o
-.PHONY : src/ac.o
-
-# target to build an object file
-src/ac.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o
-.PHONY : src/ac.cpp.o
-
-src/ac.i: src/ac.cpp.i
-.PHONY : src/ac.i
-
-# target to preprocess a source file
-src/ac.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/ac.cpp.i
-.PHONY : src/ac.cpp.i
-
-src/ac.s: src/ac.cpp.s
-.PHONY : src/ac.s
-
-# target to generate assembly for a file
-src/ac.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/ac.cpp.s
-.PHONY : src/ac.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -189,9 +165,6 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... src/ac.o"
-	@echo "... src/ac.i"
-	@echo "... src/ac.s"
 .PHONY : help
 
 
