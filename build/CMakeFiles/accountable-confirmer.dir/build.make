@@ -69,28 +69,28 @@ include CMakeFiles/accountable-confirmer.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/accountable-confirmer.dir/flags.make
 
-CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.o: CMakeFiles/accountable-confirmer.dir/flags.make
-CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.o: ../src/socket_sender.cpp
-CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.o: CMakeFiles/accountable-confirmer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.o -MF CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.o.d -o CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.o -c /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/socket_sender.cpp
+CMakeFiles/accountable-confirmer.dir/main.cpp.o: CMakeFiles/accountable-confirmer.dir/flags.make
+CMakeFiles/accountable-confirmer.dir/main.cpp.o: ../main.cpp
+CMakeFiles/accountable-confirmer.dir/main.cpp.o: CMakeFiles/accountable-confirmer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/accountable-confirmer.dir/main.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/accountable-confirmer.dir/main.cpp.o -MF CMakeFiles/accountable-confirmer.dir/main.cpp.o.d -o CMakeFiles/accountable-confirmer.dir/main.cpp.o -c /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp
 
-CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/socket_sender.cpp > CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.i
+CMakeFiles/accountable-confirmer.dir/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/accountable-confirmer.dir/main.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp > CMakeFiles/accountable-confirmer.dir/main.cpp.i
 
-CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/socket_sender.cpp -o CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.s
+CMakeFiles/accountable-confirmer.dir/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/accountable-confirmer.dir/main.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp -o CMakeFiles/accountable-confirmer.dir/main.cpp.s
 
 # Object files for target accountable-confirmer
 accountable__confirmer_OBJECTS = \
-"CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.o"
+"CMakeFiles/accountable-confirmer.dir/main.cpp.o"
 
 # External object files for target accountable-confirmer
 accountable__confirmer_EXTERNAL_OBJECTS =
 
-accountable-confirmer: CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.o
+accountable-confirmer: CMakeFiles/accountable-confirmer.dir/main.cpp.o
 accountable-confirmer: CMakeFiles/accountable-confirmer.dir/build.make
 accountable-confirmer: /usr/local/opt/openssl@1.1/lib/libcrypto.dylib
 accountable-confirmer: ../secp256k1/.libs/libsecp256k1.a

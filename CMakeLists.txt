@@ -14,16 +14,16 @@ include_directories(include/bls)
 include_directories(include/mcl)
 
 # include boost -> Yet later need to change this setting to an universal one
-set(Boost_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boost_1_80_0)
+#set(Boost_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boost_1_80_0)
 set(OPENSSL_ROOT_DIR /usr/local/opt/openssl@1.1)
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 #set(OPENSSL_INCLUDE_DIR /usr/local/opt/openssl/lib/libssl)
 #set(OPENSSL_CRYPTO_LIBRARY /usr/local/opt/openssl@1.1/lib/libcrypto)
 
-find_package(Boost)
-IF (Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIR})
-endif()
+#find_package(Boost)
+#IF (Boost_FOUND)
+#    include_directories(${Boost_INCLUDE_DIR})
+#endif()
 
 
 
@@ -60,8 +60,8 @@ add_dependencies(secp256k1 libsecp256k1)
 
 
 # executable
-add_executable(accountable-confirmer src/socket_sender.cpp)
-add_executable(broadcast_client src/socket_client.cpp)
+add_executable(accountable-confirmer main.cpp)
+
 
 #add_executable(accountable-confirmer src/generate_pki.cpp main.cpp)
 

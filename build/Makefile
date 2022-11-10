@@ -129,66 +129,29 @@ accountable-confirmer/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/build
 .PHONY : accountable-confirmer/fast
 
-#=============================================================================
-# Target rules for targets named broadcast_client
-
-# Build rule for target.
-broadcast_client: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 broadcast_client
-.PHONY : broadcast_client
-
-# fast build rule for target.
-broadcast_client/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/broadcast_client.dir/build.make CMakeFiles/broadcast_client.dir/build
-.PHONY : broadcast_client/fast
-
-src/socket_client.o: src/socket_client.cpp.o
-.PHONY : src/socket_client.o
+main.o: main.cpp.o
+.PHONY : main.o
 
 # target to build an object file
-src/socket_client.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/broadcast_client.dir/build.make CMakeFiles/broadcast_client.dir/src/socket_client.cpp.o
-.PHONY : src/socket_client.cpp.o
+main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/main.cpp.o
+.PHONY : main.cpp.o
 
-src/socket_client.i: src/socket_client.cpp.i
-.PHONY : src/socket_client.i
-
-# target to preprocess a source file
-src/socket_client.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/broadcast_client.dir/build.make CMakeFiles/broadcast_client.dir/src/socket_client.cpp.i
-.PHONY : src/socket_client.cpp.i
-
-src/socket_client.s: src/socket_client.cpp.s
-.PHONY : src/socket_client.s
-
-# target to generate assembly for a file
-src/socket_client.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/broadcast_client.dir/build.make CMakeFiles/broadcast_client.dir/src/socket_client.cpp.s
-.PHONY : src/socket_client.cpp.s
-
-src/socket_sender.o: src/socket_sender.cpp.o
-.PHONY : src/socket_sender.o
-
-# target to build an object file
-src/socket_sender.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.o
-.PHONY : src/socket_sender.cpp.o
-
-src/socket_sender.i: src/socket_sender.cpp.i
-.PHONY : src/socket_sender.i
+main.i: main.cpp.i
+.PHONY : main.i
 
 # target to preprocess a source file
-src/socket_sender.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.i
-.PHONY : src/socket_sender.cpp.i
+main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/main.cpp.i
+.PHONY : main.cpp.i
 
-src/socket_sender.s: src/socket_sender.cpp.s
-.PHONY : src/socket_sender.s
+main.s: main.cpp.s
+.PHONY : main.s
 
 # target to generate assembly for a file
-src/socket_sender.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/socket_sender.cpp.s
-.PHONY : src/socket_sender.cpp.s
+main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/main.cpp.s
+.PHONY : main.cpp.s
 
 # Help Target
 help:
@@ -199,13 +162,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... accountable-confirmer"
-	@echo "... broadcast_client"
-	@echo "... src/socket_client.o"
-	@echo "... src/socket_client.i"
-	@echo "... src/socket_client.s"
-	@echo "... src/socket_sender.o"
-	@echo "... src/socket_sender.i"
-	@echo "... src/socket_sender.s"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 .PHONY : help
 
 

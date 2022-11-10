@@ -20,6 +20,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
   "/Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/Clang.cmake"
   "/Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/GNU.cmake"
+  "/Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/FindBoost.cmake"
   "/Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/FindOpenSSL.cmake"
   "/Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/FindPackageHandleStandardArgs.cmake"
   "/Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/FindPackageMessage.cmake"
@@ -36,6 +37,10 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.23.2/CMakeCCompiler.cmake"
   "CMakeFiles/3.23.2/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.23.2/CMakeSystem.cmake"
+  "/usr/local/lib/cmake/Boost-1.80.0/BoostConfig.cmake"
+  "/usr/local/lib/cmake/Boost-1.80.0/BoostConfigVersion.cmake"
+  "/usr/local/lib/cmake/boost_headers-1.80.0/boost_headers-config-version.cmake"
+  "/usr/local/lib/cmake/boost_headers-1.80.0/boost_headers-config.cmake"
   )
 
 # The corresponding makefile is:
@@ -51,5 +56,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/broadcast_send.dir/DependInfo.cmake"
   "CMakeFiles/accountable-confirmer.dir/DependInfo.cmake"
   )
