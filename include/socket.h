@@ -21,10 +21,10 @@ namespace socket_t {
     // return 1 if success; else fail
     int InitBroadcastSocket(struct Socket *s, int portNumber);
 
-    void ReceiveMessageFromOthers(struct Socket *s);
+    void ReceiveMessageFromOthers(struct Socket *s, char* recvBuffer);
 
     // return 1 if success; else fail??
-    int SendBroadcastMessage(struct Socket *s, char *sendString);
+    int SendBroadcastMessage(struct Socket *s, char *sendMessage);
 }
 
 #endif //ACCOUNTABLE_CONFIRMER_BROADCAST_H

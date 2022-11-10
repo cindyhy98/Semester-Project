@@ -27,24 +27,10 @@ using namespace std;
 
 namespace accountable_confirmer{
 
-//    struct Key {
-//        vector<blsSecretKey> secVec;
-//        vector<blsPublicKey> pubVec;
-//    };
 
-
-    struct Process {
-        pid_t id;
-        ac_bls::Key aggregateKey;   // for ShareSigned, ShareVerify
-        ecdsa_pki::Key pkiKey;      // pki
-        message::MsgToSend msg;
-        socket_t::Socket serverSocket;      // for receiving broadcast
-        socket_t::Socket broadcastSocket;   // for sending broadcast
-    };
 
     struct AccountableConfirmer {
         int valueSubmit;
-        Process p[NUMBER_OF_PROCESS];
 
         bool confirm;
         vector<pid_t> from;
@@ -54,16 +40,21 @@ namespace accountable_confirmer{
         vector<message::MsgLightCert> obtainedLightCert; // set of aggregate signature?
         vector<message::MsgToSend> obtainedFullCert;
 
-        /* For aggregate signature */
-//        vector<blsSignature> sigVec;
-//        vector<blsPublicKey> pubVec;
-//        blsSignature aggSig;
-
     };
 
-    int FindPidInVector(vector<pid_t> vectorPID, pid_t elem);
+    struct Process {
+        pid_t id;
+        ac_bls::Key aggregateKey;   // for ShareSigned, ShareVerify
+        ecdsa_pki::Key pkiKey;      // pki
+        message::MsgToSend msg;
 
+        socket_t::Socket serverSocket;      // for receiving broadcast
+        socket_t::Socket broadcastSocket;   // for sending broadcast
 
+        AccountableConfirmer ac;
+    };
+
+//    int FindPidInVector(vector<pid_t> vectorPID, pid_t elem);
 
     void InitProcess(struct Process* p);
 
@@ -75,22 +66,30 @@ namespace accountable_confirmer{
     /* Create submit message and sign it with the PKI private key of the process */
     void SubmitMsgSign(struct Process* p);
 
-    int SubmitMsgVerify(struct AccountableConfirmer* ac, pid_t sendBy, message::MsgToSend msgToSend);
-
     /* Accountable Confirmer main functions */
     void InitAC(struct AccountableConfirmer* ac);
 
+    int SubmitMsgVerify(struct AccountableConfirmer* ac, struct Process* recvP);
+
     bool Submit(struct AccountableConfirmer* ac, int v);
 
-    int Confirm(struct AccountableConfirmer* ac);
+    void Confirm(struct Process* p);
 
     /* Combine the received partial signatures into light certificate */
-    void CombinedLightCert(struct AccountableConfirmer* ac);
+    void CombinedLightCert(struct Process *p);
 
     void DetectConflictLightCert(struct AccountableConfirmer* ac);
 
-    void DetectConflictFullCert(struct AccountableConfirmer* ac);
+//    void DetectConflictFullCert(struct AccountableConfirmer* ac);
 
+    void BroadcastSubmitProcess(struct Process* submitProcess);
+
+    void ReceiveSubmitProcess(struct AccountableConfirmer* ac, struct Process* submitProcess);
+
+    void BroadcastLightCert(struct message::MsgLightCert* mlc, struct Process* p);
+
+    void ReceiveLightCert(struct Process* p);
+    // void BroadcastFullCert
 
 }
 #endif //ACCOUNTABLE_CONFIRMER_AC_H

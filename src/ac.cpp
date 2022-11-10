@@ -15,24 +15,25 @@ using namespace std;
 #define MAX_DIGIT 15 //biggest int is 2147482647
 #define PORT 9999
 
+#define BUFFER_SIZE 4096
+
 namespace accountable_confirmer{
 
     struct AccountableConfirmer ac;
-//    struct BestEffortBroadcast beb;
     struct Process p;
 
-    int FindPidInVecotr(vector<pid_t> vectorPID, pid_t elem){
-        if (find(vectorPID.begin(), vectorPID.end(), elem) != vectorPID.end()){
+    int FindPidInVector(vector<pid_t> vectorPID, pid_t elem){
+        vector<pid_t>::iterator it = find(vectorPID.begin(), vectorPID.end(), elem);
+        if (it != vectorPID.end()){
             printf("pid(%d) is ALREADY in the vector\n", elem);
-            return 1;
+            return it - vectorPID.begin();
         } else {
             printf("pid(%d) is NOT YET in the vector\n", elem);
-            return 0;
+            return -1;
         }
     }
 
 
-    // [Done]
     void InitProcess(struct Process* p){
         p->id = getpid();
 
@@ -48,6 +49,8 @@ namespace accountable_confirmer{
         // QUESTION: how to give the port number?
         socket_t::InitServerSocket(&p->serverSocket, PORT);
         socket_t::InitBroadcastSocket(&p->broadcastSocket, PORT);
+
+        InitAC(&p->ac);
     }
 
     // [Done]
@@ -93,24 +96,10 @@ namespace accountable_confirmer{
         ac->fullCert.clear();
         ac->obtainedLightCert.clear();
         ac->obtainedFullCert.clear();
-
-        /* Should init here?*/
-        for(int i = 0; i < NUMBER_OF_PROCESS; i++){
-            InitProcess(&ac->p[i]);
-        }
-
-//        ac->sigVec.clear();
-//        ac->pubVec.clear();
     }
 
+    /* Return 0 if verified, Return -1 if not verified */
     int SubmitMsgVerify(struct AccountableConfirmer* ac, struct Process* recvP){
-        // recvP is one of the process that is stored under ac
-
-        // TODO: Broadcast() function
-        // In Broadcast(), the message will be sent from the submit process to everyone (which records in ac->p)
-        // Broadcast() will call SubmitMsgVerify
-
-
         // Authenticate the submitted msg
 
         int resVerify = ecdsa_pki::Verify(&recvP->pkiKey, &recvP->msg.sig, recvP->msg.msgHash);
@@ -126,10 +115,9 @@ namespace accountable_confirmer{
                 ac->fullCert.push_back(recvP->msg);
                 return 0;
             }
-            return 1;
+            return -1;
         }
     }
-
 
 
     bool Submit(struct AccountableConfirmer* ac, int v) {
@@ -137,22 +125,22 @@ namespace accountable_confirmer{
         return true;
     }
 
-    int Confirm(struct AccountableConfirmer* ac) {
-        if (ac->from.size() >= NUMBER_OF_THREAD - NUMBER_OF_FAULTY){
-            ac->confirm = true;
+    void Confirm(struct Process* p) {
+        if (p->ac.from.size() >= NUMBER_OF_THREAD - NUMBER_OF_FAULTY){
+            p->ac.confirm = true;
         }
 
-        // TODO: Broadcast LightCert
+        // Generate aggregate signature (CombinedLightCert)
+        CombinedLightCert(p);
 
-        return ac->valueSubmit;
     }
 
-    void CombinedLightCert(struct AccountableConfirmer* ac){
-        // Combine the received partial signatures into light certificate (==aggregate signature)
+    /* Combine the received partial signatures into light certificate (==aggregate signature)  */
+    void CombinedLightCert(struct Process* p){
         int submitValue;
         vector<blsSignature> sigVec;
 
-        for(auto & elem : ac->lightCert){
+        for(auto & elem : p->ac.lightCert){
             sigVec.push_back(elem.sig);
             submitValue = elem.value;
         }
@@ -165,43 +153,89 @@ namespace accountable_confirmer{
         // The aggregate signature is stored in ac
         ac_bls::AggSign(&aggSig, &sigVec[0], msgSize);
 
+
         struct message::MsgLightCert mlc = {.value = submitValue, .aggSig = aggSig};
-        ac->obtainedLightCert.push_back(mlc);
+
+        // Broadcast this light cert for everyone
+        BroadcastLightCert(&mlc, p);
     }
 
     void DetectConflictLightCert(struct AccountableConfirmer* ac){
         message::MsgLightCert tmp = ac->obtainedLightCert.front();
         for(vector<message::MsgLightCert>::size_type i = 1; i != ac->obtainedLightCert.size(); i++) {
-            // conflicting lightcert
+            // find conflicting lightcert
             if(ac->obtainedLightCert[i].value != tmp.value && ac->confirm){
-                // TODO: Broadcast FullCert
+                // TODO: We reach the end of the proof!!
 
             }
         }
 
     }
 
-    void DetectConflictFullCert(struct AccountableConfirmer* ac){
-        message::MsgToSend tmp = ac->obtainedFullCert.front();
-        for(vector<message::MsgToSend>::size_type i = 1; i != ac->obtainedFullCert.size(); i++) {
-            // conflicting lightcert
-            if(ac->obtainedFullCert[i].msgHash != tmp.msgHash){
-                // TODO: call Detect
-            }
+    /* Question: This function is useless now since we are using aggregate signature? */
+//    void DetectConflictFullCert(struct AccountableConfirmer* ac){
+//        message::MsgToSend tmp = ac->obtainedFullCert.front();
+//        for(vector<message::MsgToSend>::size_type i = 1; i != ac->obtainedFullCert.size(); i++) {
+//            // conflicting lightcert
+//            if(ac->obtainedFullCert[i].msgHash != tmp.msgHash){
+//                // call Detect
+//            }
+//        }
+//    }
+
+
+    void BroadcastSubmitProcess(struct Process* submitProcess){
+
+        // Convert struct Process to char array
+        char mChar[sizeof(submitProcess)+1];
+        memcpy(mChar, &submitProcess, sizeof(submitProcess));
+        int ret = socket_t::SendBroadcastMessage(&submitProcess->broadcastSocket, mChar);
+
+        if (ret != 1) {
+            perror("broadcast submit process error\n");
         }
+
+    }
+
+    void ReceiveSubmitProcess(struct AccountableConfirmer* ac, struct Process* submitProcess){
+//        char recvBuffer[BUFFER_SIZE];
+
+        char *buf = NULL;
+        buf = (char *)malloc (sizeof(char) * BUFFER_SIZE);
+        memset(buf, 0, BUFFER_SIZE);
+
+        /* The received message is stored in recvBuffer */
+        socket_t::ReceiveMessageFromOthers(&submitProcess->serverSocket, buf);
+
+        struct Process* tmpProcess = (Process *) buf;
+        int verify = SubmitMsgVerify(ac, tmpProcess); // Question: this value will never be used?
+
+    }
+
+    void BroadcastLightCert(struct message::MsgLightCert* mlc, struct Process* p){
+        // Convert struct Process to char array
+        char mChar[sizeof(mlc)+1];
+        memcpy(mChar, &mlc, sizeof(mlc));
+        int ret = socket_t::SendBroadcastMessage(&p->broadcastSocket, mChar);
+
+        if (ret != 1) {
+            perror("broadcast error\n");
+        }
+    }
+
+    void ReceiveLightCert(struct Process* p){
+        char *buf = NULL;
+        buf = (char *)malloc (sizeof(char) * BUFFER_SIZE);
+        memset(buf, 0, BUFFER_SIZE);
+
+        /* The received message is stored in recvBuffer */
+        socket_t::ReceiveMessageFromOthers(&p->serverSocket, buf);
+
+        struct message::MsgLightCert* tmpLightCert = (message::MsgLightCert *) buf;
+        p->ac.obtainedLightCert.push_back(*tmpLightCert);
     }
 
 
 
-
-    /*
-     * void Broadcast(struct AccountableConfirmer* ac, struct Process* submitProcess){
-     *      // a process is trying to send its value to everyone
-     *      1. find a NULL Process in ac->p[i]
-     *      2. store the info of submitProcess into ac->p[i] (here it stores the unverified process info)
-     *      3. call SubmitMsgVerify(struct AccountableConfirmer* ac, struct Process* ac->p[i]) to check if everything is verified
-     *      4. if not Verify (SubmitMsgVerify == 1) -> clear ac->p[i] (don't store it)
-     * }
-     */
 
 }
