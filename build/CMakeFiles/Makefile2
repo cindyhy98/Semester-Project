@@ -64,6 +64,7 @@ CMAKE_BINARY_DIR = /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accounta
 
 # The main recursive "all" target.
 all: CMakeFiles/accountable-confirmer.dir/all
+all: CMakeFiles/broadcast_client.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -72,6 +73,7 @@ preinstall:
 
 # The main recursive "clean" target.
 clean: CMakeFiles/accountable-confirmer.dir/clean
+clean: CMakeFiles/broadcast_client.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -99,6 +101,32 @@ accountable-confirmer: CMakeFiles/accountable-confirmer.dir/rule
 CMakeFiles/accountable-confirmer.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/clean
 .PHONY : CMakeFiles/accountable-confirmer.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/broadcast_client.dir
+
+# All Build rule for target.
+CMakeFiles/broadcast_client.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/broadcast_client.dir/build.make CMakeFiles/broadcast_client.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/broadcast_client.dir/build.make CMakeFiles/broadcast_client.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=3,4 "Built target broadcast_client"
+.PHONY : CMakeFiles/broadcast_client.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/broadcast_client.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/broadcast_client.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles 0
+.PHONY : CMakeFiles/broadcast_client.dir/rule
+
+# Convenience name for target.
+broadcast_client: CMakeFiles/broadcast_client.dir/rule
+.PHONY : broadcast_client
+
+# clean rule for target.
+CMakeFiles/broadcast_client.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/broadcast_client.dir/build.make CMakeFiles/broadcast_client.dir/clean
+.PHONY : CMakeFiles/broadcast_client.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

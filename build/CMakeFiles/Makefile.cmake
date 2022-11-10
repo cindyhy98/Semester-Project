@@ -57,4 +57,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/accountable-confirmer.dir/DependInfo.cmake"
+  "CMakeFiles/broadcast_client.dir/DependInfo.cmake"
   )

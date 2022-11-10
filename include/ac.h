@@ -18,6 +18,7 @@
 #include "ac_bls.h"
 #include "message.h"
 #include "ecdsa_pki.h"
+#include "socket.h"
 
 
 #define NUMBER_OF_PROCESS size_t(4)
@@ -37,6 +38,8 @@ namespace accountable_confirmer{
         ac_bls::Key aggregateKey;   // for ShareSigned, ShareVerify
         ecdsa_pki::Key pkiKey;      // pki
         message::MsgToSend msg;
+        socket_t::Socket serverSocket;      // for receiving broadcast
+        socket_t::Socket broadcastSocket;   // for sending broadcast
     };
 
     struct AccountableConfirmer {
@@ -80,6 +83,7 @@ namespace accountable_confirmer{
     bool Submit(struct AccountableConfirmer* ac, int v);
 
     int Confirm(struct AccountableConfirmer* ac);
+
     /* Combine the received partial signatures into light certificate */
     void CombinedLightCert(struct AccountableConfirmer* ac);
 
@@ -87,7 +91,6 @@ namespace accountable_confirmer{
 
     void DetectConflictFullCert(struct AccountableConfirmer* ac);
 
-    void Detect(struct AccountableConfirmer* ac);
 
 }
 #endif //ACCOUNTABLE_CONFIRMER_AC_H

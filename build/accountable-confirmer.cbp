@@ -63,6 +63,52 @@
 					<DistClean command="/usr/local/bin/gmake -f &quot;/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
+			<Target title="broadcast_client">
+				<Option output="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/broadcast_client" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/bls"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/mcl"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/boost_1_80_0"/>
+					<Add directory="/usr/local/opt/openssl@1.1/include"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/secp256k1/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/local/bin/gmake -f &quot;/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/Makefile&quot;  VERBOSE=1 broadcast_client"/>
+					<CompileFile command="/usr/local/bin/gmake -f &quot;/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/gmake -f &quot;/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/gmake -f &quot;/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="broadcast_client/fast">
+				<Option output="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/broadcast_client" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/bls"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/include/mcl"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/boost_1_80_0"/>
+					<Add directory="/usr/local/opt/openssl@1.1/include"/>
+					<Add directory="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/secp256k1/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/local/bin/gmake -f &quot;/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/Makefile&quot;  VERBOSE=1 broadcast_client/fast"/>
+					<CompileFile command="/usr/local/bin/gmake -f &quot;/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/gmake -f &quot;/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/gmake -f &quot;/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
 			<Target title="edit_cache">
 				<Option working_dir="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build"/>
 				<Option type="4"/>
@@ -84,7 +130,10 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp">
+		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/socket_client.cpp">
+			<Option target="broadcast_client"/>
+		</Unit>
+		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/socket_sender.cpp">
 			<Option target="accountable-confirmer"/>
 		</Unit>
 		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/CMakeLists.txt">

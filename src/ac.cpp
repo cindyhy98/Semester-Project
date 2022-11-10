@@ -13,7 +13,7 @@ using namespace std;
 #define PROPOSE_VALUE_2 222
 
 #define MAX_DIGIT 15 //biggest int is 2147482647
-
+#define PORT 9999
 
 namespace accountable_confirmer{
 
@@ -40,9 +40,14 @@ namespace accountable_confirmer{
         ac_bls::Init();
         ac_bls::KeyGen(&p->aggregateKey);
 
-        //each process also has a pair of PKI secret key and PKI public key
+        // each process also has a pair of PKI secret key and PKI public key
         ecdsa_pki::Init(&p->pkiKey);
         ecdsa_pki::KeyGen(&p->pkiKey);
+
+        // init socket
+        // QUESTION: how to give the port number?
+        socket_t::InitServerSocket(&p->serverSocket, PORT);
+        socket_t::InitBroadcastSocket(&p->broadcastSocket, PORT);
     }
 
     // [Done]
@@ -188,9 +193,6 @@ namespace accountable_confirmer{
 
 
 
-    void Detect(struct AccountableConfirmer* ac) {
-
-    }
 
     /*
      * void Broadcast(struct AccountableConfirmer* ac, struct Process* submitProcess){
