@@ -1,5 +1,6 @@
 #include "socket.h"
 
+
 #include <unistd.h>     /* for close() */
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +23,7 @@ namespace socket_t {
 
         /* Create socket for sending/receiving datagrams */
         s->sock = socket(AF_INET, SOCK_DGRAM, 0);
-//        fcntl(s->sock, F_SETFL, O_NONBLOCK);
+        fcntl(s->sock, F_SETFL, O_NONBLOCK);
         if (s->sock < 0) {
             perror("sock error\n");
             return -1;
@@ -86,6 +87,7 @@ namespace socket_t {
             ret = select(s->sock+1, &readfd, NULL, NULL, 0);
             if (ret > 0) {
                 if (FD_ISSET(s->sock, &readfd)) {
+                    printf("[socket_t::ReceiveMessageFromOthers]");
                     count = recvfrom(s->sock, &recvBuffer, sizeof(recvBuffer), 0, (struct sockaddr*)&client_addr, &s->addrLen);
                     printf("\nClient connection information:\n\t IP: %s, Port: %d\n",
                                inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
@@ -104,5 +106,21 @@ namespace socket_t {
         } else {
             return -1;
         }
+    }
+
+    int SetNonblocking(int sock) {
+        int flags;
+
+        /* If they have O_NONBLOCK, use the Posix way to do it */
+#if defined(O_NONBLOCK)
+        /* Fixme: O_NONBLOCK is defined but broken on SunOS 4.1.x and AIX 3.2.5. */
+        if (-1 == (flags = fcntl(sock, F_GETFL, 0)))
+            flags = 0;
+        return fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+#else
+        /* Otherwise, use the old way of doing it */
+    flags = 1;
+    return ioctl(fd, FIOBIO, &flags);
+#endif
     }
 }

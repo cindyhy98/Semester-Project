@@ -69,34 +69,114 @@ include CMakeFiles/accountable-confirmer.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/accountable-confirmer.dir/flags.make
 
+CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o: CMakeFiles/accountable-confirmer.dir/flags.make
+CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o: ../src/ac.cpp
+CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o: CMakeFiles/accountable-confirmer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o -MF CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o.d -o CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o -c /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ac.cpp
+
+CMakeFiles/accountable-confirmer.dir/src/ac.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/accountable-confirmer.dir/src/ac.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ac.cpp > CMakeFiles/accountable-confirmer.dir/src/ac.cpp.i
+
+CMakeFiles/accountable-confirmer.dir/src/ac.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/accountable-confirmer.dir/src/ac.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ac.cpp -o CMakeFiles/accountable-confirmer.dir/src/ac.cpp.s
+
+CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.o: CMakeFiles/accountable-confirmer.dir/flags.make
+CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.o: ../src/ac_bls.cpp
+CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.o: CMakeFiles/accountable-confirmer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.o -MF CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.o.d -o CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.o -c /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ac_bls.cpp
+
+CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ac_bls.cpp > CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.i
+
+CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ac_bls.cpp -o CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.s
+
+CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.o: CMakeFiles/accountable-confirmer.dir/flags.make
+CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.o: ../src/ecdsa_pki.cpp
+CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.o: CMakeFiles/accountable-confirmer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.o -MF CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.o.d -o CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.o -c /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ecdsa_pki.cpp
+
+CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ecdsa_pki.cpp > CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.i
+
+CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ecdsa_pki.cpp -o CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.s
+
+CMakeFiles/accountable-confirmer.dir/src/message.cpp.o: CMakeFiles/accountable-confirmer.dir/flags.make
+CMakeFiles/accountable-confirmer.dir/src/message.cpp.o: ../src/message.cpp
+CMakeFiles/accountable-confirmer.dir/src/message.cpp.o: CMakeFiles/accountable-confirmer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/accountable-confirmer.dir/src/message.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/accountable-confirmer.dir/src/message.cpp.o -MF CMakeFiles/accountable-confirmer.dir/src/message.cpp.o.d -o CMakeFiles/accountable-confirmer.dir/src/message.cpp.o -c /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/message.cpp
+
+CMakeFiles/accountable-confirmer.dir/src/message.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/accountable-confirmer.dir/src/message.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/message.cpp > CMakeFiles/accountable-confirmer.dir/src/message.cpp.i
+
+CMakeFiles/accountable-confirmer.dir/src/message.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/accountable-confirmer.dir/src/message.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/message.cpp -o CMakeFiles/accountable-confirmer.dir/src/message.cpp.s
+
+CMakeFiles/accountable-confirmer.dir/src/socket.cpp.o: CMakeFiles/accountable-confirmer.dir/flags.make
+CMakeFiles/accountable-confirmer.dir/src/socket.cpp.o: ../src/socket.cpp
+CMakeFiles/accountable-confirmer.dir/src/socket.cpp.o: CMakeFiles/accountable-confirmer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/accountable-confirmer.dir/src/socket.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/accountable-confirmer.dir/src/socket.cpp.o -MF CMakeFiles/accountable-confirmer.dir/src/socket.cpp.o.d -o CMakeFiles/accountable-confirmer.dir/src/socket.cpp.o -c /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/socket.cpp
+
+CMakeFiles/accountable-confirmer.dir/src/socket.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/accountable-confirmer.dir/src/socket.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/socket.cpp > CMakeFiles/accountable-confirmer.dir/src/socket.cpp.i
+
+CMakeFiles/accountable-confirmer.dir/src/socket.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/accountable-confirmer.dir/src/socket.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/socket.cpp -o CMakeFiles/accountable-confirmer.dir/src/socket.cpp.s
+
 CMakeFiles/accountable-confirmer.dir/main.cpp.o: CMakeFiles/accountable-confirmer.dir/flags.make
 CMakeFiles/accountable-confirmer.dir/main.cpp.o: ../main.cpp
 CMakeFiles/accountable-confirmer.dir/main.cpp.o: CMakeFiles/accountable-confirmer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/accountable-confirmer.dir/main.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/accountable-confirmer.dir/main.cpp.o -MF CMakeFiles/accountable-confirmer.dir/main.cpp.o.d -o CMakeFiles/accountable-confirmer.dir/main.cpp.o -c /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/accountable-confirmer.dir/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/accountable-confirmer.dir/main.cpp.o -MF CMakeFiles/accountable-confirmer.dir/main.cpp.o.d -o CMakeFiles/accountable-confirmer.dir/main.cpp.o -c /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp
 
 CMakeFiles/accountable-confirmer.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/accountable-confirmer.dir/main.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp > CMakeFiles/accountable-confirmer.dir/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp > CMakeFiles/accountable-confirmer.dir/main.cpp.i
 
 CMakeFiles/accountable-confirmer.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/accountable-confirmer.dir/main.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp -o CMakeFiles/accountable-confirmer.dir/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp -o CMakeFiles/accountable-confirmer.dir/main.cpp.s
 
 # Object files for target accountable-confirmer
 accountable__confirmer_OBJECTS = \
+"CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o" \
+"CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.o" \
+"CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.o" \
+"CMakeFiles/accountable-confirmer.dir/src/message.cpp.o" \
+"CMakeFiles/accountable-confirmer.dir/src/socket.cpp.o" \
 "CMakeFiles/accountable-confirmer.dir/main.cpp.o"
 
 # External object files for target accountable-confirmer
 accountable__confirmer_EXTERNAL_OBJECTS =
 
+accountable-confirmer: CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o
+accountable-confirmer: CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.o
+accountable-confirmer: CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.o
+accountable-confirmer: CMakeFiles/accountable-confirmer.dir/src/message.cpp.o
+accountable-confirmer: CMakeFiles/accountable-confirmer.dir/src/socket.cpp.o
 accountable-confirmer: CMakeFiles/accountable-confirmer.dir/main.cpp.o
 accountable-confirmer: CMakeFiles/accountable-confirmer.dir/build.make
-accountable-confirmer: /usr/local/opt/openssl@1.1/lib/libcrypto.dylib
+accountable-confirmer: /usr/local/opt/openssl@1.1/lib/libcrypto.a
 accountable-confirmer: ../secp256k1/.libs/libsecp256k1.a
 accountable-confirmer: /usr/local/lib/libbls384_256.dylib
 accountable-confirmer: CMakeFiles/accountable-confirmer.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable accountable-confirmer"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable accountable-confirmer"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/accountable-confirmer.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

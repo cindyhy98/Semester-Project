@@ -20,7 +20,7 @@ namespace ac_bls {
         // use the latest eth2.0 spec
         blsSetETHmode(BLS_ETH_MODE_LATEST);
 
-        printf("[Init] Successful! \n");
+        printf("[ac_bls::Init] Successful! \n");
     }
 
     void KeyGen(Key* k) {
@@ -30,14 +30,14 @@ namespace ac_bls {
         // get PublicKey pub from SecretKey sec
         blsGetPublicKey(&k->pub, &k->sec);
 
-        printf("[KeyGen] PublicKey from SecretKey\n");
+        printf("[ac_bls::KeyGen] Generate PublicKey from SecretKey\n");
     }
 
     void Sign(Key* k, blsSignature *sig, char msg[]) {
         const size_t msgSize = strlen(msg);
 
         blsSign(sig, &k->sec, msg, msgSize);
-        printf("[Sign] Make a Signature\n");
+        printf("[ac_bls::Sign] Make a Signature\n");
     }
 
     /* return 1 if it is valid else 0 */
@@ -48,6 +48,7 @@ namespace ac_bls {
 
     void AggSign(blsSignature *aggSig, const blsSignature *sigVec, mclSize n) {
         blsAggregateSignature(aggSig, sigVec, n);
+        printf("[ac_bls::AggSign] Make a Aggregate Signature\n");
     }
 
 

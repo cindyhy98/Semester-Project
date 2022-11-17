@@ -10,6 +10,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include <thread>
 
 /* External Library */
 #include <openssl/sha.h>
@@ -27,13 +28,11 @@ using namespace std;
 
 namespace accountable_confirmer{
 
-
-
     struct AccountableConfirmer {
         int valueSubmit;
 
         bool confirm;
-        vector<pid_t> from;
+        vector<int> from;
         vector<message::MsgSubmit> lightCert;
         vector<message::MsgToSend> fullCert;
 
@@ -43,7 +42,7 @@ namespace accountable_confirmer{
     };
 
     struct Process {
-        pid_t id;
+        int id;
         ac_bls::Key aggregateKey;   // for ShareSigned, ShareVerify
         ecdsa_pki::Key pkiKey;      // pki
         message::MsgToSend msg;
@@ -52,28 +51,38 @@ namespace accountable_confirmer{
         socket_t::Socket broadcastSocket;   // for sending broadcast
 
         AccountableConfirmer ac;
+
+        // this is a tmp value
+        // -> as long as the implementation of broadcast is done, then this value can be removed
+        message::MsgLightCert mlc;
     };
+
+
 
 //    int FindPidInVector(vector<pid_t> vectorPID, pid_t elem);
 
-    void InitProcess(struct Process* p);
-
-    /* Create partial signature */
-    void ShareSign(struct Process* p);
-    /* Verify partial signature */
-    int ShareVerify(struct Process* p);
-
-    /* Create submit message and sign it with the PKI private key of the process */
-    void SubmitMsgSign(struct Process* p);
+    void InitProcess(struct Process* p, int portNumber);
 
     /* Accountable Confirmer main functions */
     void InitAC(struct AccountableConfirmer* ac);
 
+    /* Create partial signature */
+    void ShareSign(struct Process* p);
+    /* Sign the whole Submit message with PKI private key (secp256k1) */
+    void SubmitMsgSign(struct Process* p);
+
+    /* Verify partial signature */
+    int ShareVerify(struct Process* p);
+
+
+    /* Verify PKI key and the partial signature
+     * Return 0 if verified, Return -1 if not verified */
     int SubmitMsgVerify(struct AccountableConfirmer* ac, struct Process* recvP);
 
-    bool Submit(struct AccountableConfirmer* ac, int v);
+    bool Submit(struct Process* p, int v);
 
-    void Confirm(struct Process* p);
+    /* Return 0 if the condition meets, otherwise return 1 */
+    int Confirm(struct Process* p);
 
     /* Combine the received partial signatures into light certificate */
     void CombinedLightCert(struct Process *p);
@@ -84,12 +93,17 @@ namespace accountable_confirmer{
 
     void BroadcastSubmitProcess(struct Process* submitProcess);
 
-    void ReceiveSubmitProcess(struct AccountableConfirmer* ac, struct Process* submitProcess);
+    void ReceiveSubmitProcess(struct Process* receiveProcess);
+
+    void PseudoReceiveSubmitProcess(struct Process* receiveProcess, struct Process* submitProcess);
 
     void BroadcastLightCert(struct message::MsgLightCert* mlc, struct Process* p);
 
     void ReceiveLightCert(struct Process* p);
     // void BroadcastFullCert
+
+    void PseudoReceiveLightCert( struct Process* receiveProcess, struct Process* submitProcess);
+
 
 }
 #endif //ACCOUNTABLE_CONFIRMER_AC_H

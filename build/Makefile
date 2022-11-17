@@ -153,6 +153,126 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+src/ac.o: src/ac.cpp.o
+.PHONY : src/ac.o
+
+# target to build an object file
+src/ac.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o
+.PHONY : src/ac.cpp.o
+
+src/ac.i: src/ac.cpp.i
+.PHONY : src/ac.i
+
+# target to preprocess a source file
+src/ac.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/ac.cpp.i
+.PHONY : src/ac.cpp.i
+
+src/ac.s: src/ac.cpp.s
+.PHONY : src/ac.s
+
+# target to generate assembly for a file
+src/ac.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/ac.cpp.s
+.PHONY : src/ac.cpp.s
+
+src/ac_bls.o: src/ac_bls.cpp.o
+.PHONY : src/ac_bls.o
+
+# target to build an object file
+src/ac_bls.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.o
+.PHONY : src/ac_bls.cpp.o
+
+src/ac_bls.i: src/ac_bls.cpp.i
+.PHONY : src/ac_bls.i
+
+# target to preprocess a source file
+src/ac_bls.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.i
+.PHONY : src/ac_bls.cpp.i
+
+src/ac_bls.s: src/ac_bls.cpp.s
+.PHONY : src/ac_bls.s
+
+# target to generate assembly for a file
+src/ac_bls.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.s
+.PHONY : src/ac_bls.cpp.s
+
+src/ecdsa_pki.o: src/ecdsa_pki.cpp.o
+.PHONY : src/ecdsa_pki.o
+
+# target to build an object file
+src/ecdsa_pki.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.o
+.PHONY : src/ecdsa_pki.cpp.o
+
+src/ecdsa_pki.i: src/ecdsa_pki.cpp.i
+.PHONY : src/ecdsa_pki.i
+
+# target to preprocess a source file
+src/ecdsa_pki.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.i
+.PHONY : src/ecdsa_pki.cpp.i
+
+src/ecdsa_pki.s: src/ecdsa_pki.cpp.s
+.PHONY : src/ecdsa_pki.s
+
+# target to generate assembly for a file
+src/ecdsa_pki.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.s
+.PHONY : src/ecdsa_pki.cpp.s
+
+src/message.o: src/message.cpp.o
+.PHONY : src/message.o
+
+# target to build an object file
+src/message.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/message.cpp.o
+.PHONY : src/message.cpp.o
+
+src/message.i: src/message.cpp.i
+.PHONY : src/message.i
+
+# target to preprocess a source file
+src/message.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/message.cpp.i
+.PHONY : src/message.cpp.i
+
+src/message.s: src/message.cpp.s
+.PHONY : src/message.s
+
+# target to generate assembly for a file
+src/message.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/message.cpp.s
+.PHONY : src/message.cpp.s
+
+src/socket.o: src/socket.cpp.o
+.PHONY : src/socket.o
+
+# target to build an object file
+src/socket.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/socket.cpp.o
+.PHONY : src/socket.cpp.o
+
+src/socket.i: src/socket.cpp.i
+.PHONY : src/socket.i
+
+# target to preprocess a source file
+src/socket.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/socket.cpp.i
+.PHONY : src/socket.cpp.i
+
+src/socket.s: src/socket.cpp.s
+.PHONY : src/socket.s
+
+# target to generate assembly for a file
+src/socket.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/accountable-confirmer.dir/build.make CMakeFiles/accountable-confirmer.dir/src/socket.cpp.s
+.PHONY : src/socket.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -165,6 +285,21 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... src/ac.o"
+	@echo "... src/ac.i"
+	@echo "... src/ac.s"
+	@echo "... src/ac_bls.o"
+	@echo "... src/ac_bls.i"
+	@echo "... src/ac_bls.s"
+	@echo "... src/ecdsa_pki.o"
+	@echo "... src/ecdsa_pki.i"
+	@echo "... src/ecdsa_pki.s"
+	@echo "... src/message.o"
+	@echo "... src/message.i"
+	@echo "... src/message.s"
+	@echo "... src/socket.o"
+	@echo "... src/socket.i"
+	@echo "... src/socket.s"
 .PHONY : help
 
 

@@ -1,6 +1,16 @@
 file(REMOVE_RECURSE
   "CMakeFiles/accountable-confirmer.dir/main.cpp.o"
   "CMakeFiles/accountable-confirmer.dir/main.cpp.o.d"
+  "CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o"
+  "CMakeFiles/accountable-confirmer.dir/src/ac.cpp.o.d"
+  "CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.o"
+  "CMakeFiles/accountable-confirmer.dir/src/ac_bls.cpp.o.d"
+  "CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.o"
+  "CMakeFiles/accountable-confirmer.dir/src/ecdsa_pki.cpp.o.d"
+  "CMakeFiles/accountable-confirmer.dir/src/message.cpp.o"
+  "CMakeFiles/accountable-confirmer.dir/src/message.cpp.o.d"
+  "CMakeFiles/accountable-confirmer.dir/src/socket.cpp.o"
+  "CMakeFiles/accountable-confirmer.dir/src/socket.cpp.o.d"
   "accountable-confirmer"
   "accountable-confirmer.pdb"
 )

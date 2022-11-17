@@ -85,6 +85,21 @@
 		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/main.cpp">
 			<Option target="accountable-confirmer"/>
 		</Unit>
+		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ac.cpp">
+			<Option target="accountable-confirmer"/>
+		</Unit>
+		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ac_bls.cpp">
+			<Option target="accountable-confirmer"/>
+		</Unit>
+		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/ecdsa_pki.cpp">
+			<Option target="accountable-confirmer"/>
+		</Unit>
+		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/message.cpp">
+			<Option target="accountable-confirmer"/>
+		</Unit>
+		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/src/socket.cpp">
+			<Option target="accountable-confirmer"/>
+		</Unit>
 		<Unit filename="/Users/yangyuhsin/Documents/22_Fall/Semester_Project/Accountable-Confirmer/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

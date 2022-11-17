@@ -5,53 +5,54 @@
 /* Internal Library */
 #include "ac.h"
 
-
-
 /* Define */
-#define NUMBER_OF_PROCESS size_t(4)
-
+#define SUBMIT_VALUE 334949
+#define SUBMIT_VALUE_FAKE 666666
 using namespace std;
 
 
 int main(int argc,char *argv[])
 {
+    accountable_confirmer::Process P[NUMBER_OF_PROCESS];
+    int portNumber[5] = {9000, 9001, 9002, 9003};
+    bool confirm = false;
+    bool detectConflict = false;
 
-//    ac_bls::Init();
-//
-//    char msg[] = "hello";
-//    const size_t msgSize = strlen(msg);
-//
-//    /* Test Single Signature*/
-//    blsSecretKey sec;
-//    blsPublicKey pub;
-//    blsSignature sig;
-//
-//    ac_bls::KeyGen(&sec, &pub);
-//    ac_bls::Sign(&sig, &sec, msg);
-//
-//    int verSimple = ac_bls::Verify(sig, pub, msg);
-//    if (verSimple) printf("[Verify] Correct!\n");
-//    else   printf("[Verify] Wrong!\n");
-//
-//
-//    /* Test Aggregate Signature */
-//    vector<blsSecretKey> secVec(NUMBER_OF_PROCESS);
-//    vector<blsPublicKey> pubVec(NUMBER_OF_PROCESS);
-//    vector<blsSignature> sigVec(NUMBER_OF_PROCESS);
-//    blsSignature aggSig;
-//
-//    for (size_t i = 0; i < NUMBER_OF_PROCESS; ++i) {
-//        ac_bls::KeyGen(&secVec[i], &pubVec[i]);
-//        ac_bls::Sign(&sigVec[i], &secVec[i], msg);
-//    }
-//
-//    ac_bls::AggSign(&aggSig, &sigVec[0], msgSize);
-//
-//    int verAgg = ac_bls::FastAggSignVerify(&aggSig, &pubVec[0], NUMBER_OF_PROCESS, msg, msgSize);
-//    if (verAgg) printf("[VerifyAgg] Correct!\n");
-//    else   printf("[VerifyAgg] Wrong!\n");
-//
-//    return 0;
+    for(int i = 0; i < NUMBER_OF_PROCESS; i++){
+        accountable_confirmer::InitProcess(&P[i], portNumber[i]);
+        printf("==================================================================\n");
+    }
+
+
+    /* Choose a random process to submit */
+//    srand(time(0));
+//    int tmpIndex = rand() % NUMBER_OF_PROCESS;
+    for (int j = 0; j < 3; j++){
+        int tmpIndex = j;
+        accountable_confirmer::Submit(&P[tmpIndex], SUBMIT_VALUE);
+        printf("==================================================================\n");
+        for(int i = 0; i < NUMBER_OF_PROCESS; i++){
+            if (i != tmpIndex){
+                accountable_confirmer::PseudoReceiveSubmitProcess(&P[i], &P[tmpIndex]);
+
+                if (!accountable_confirmer::Confirm(&P[i])){
+                    // Confirm
+                    confirm = true;
+
+                } else {
+                    // Not Confirm
+
+                }
+                printf("==================================================================\n");
+            }
+        }
+
+    }
+
+
+
+
+
 
 
     return 0;

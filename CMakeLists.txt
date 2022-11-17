@@ -26,10 +26,6 @@ set(OPENSSL_USE_STATIC_LIBS TRUE)
 #endif()
 
 
-
-
-
-
 # Search OpenSSL
 find_package(OpenSSL REQUIRED)
 if( OpenSSL_FOUND )
@@ -59,14 +55,17 @@ set_target_properties(
 add_dependencies(secp256k1 libsecp256k1)
 
 
+
 # executable
-add_executable(accountable-confirmer main.cpp)
-
-
-#add_executable(accountable-confirmer src/generate_pki.cpp main.cpp)
+add_executable(accountable-confirmer src/ac.cpp src/ac_bls.cpp src/ecdsa_pki.cpp
+        src/message.cpp src/socket.cpp main.cpp)
+#add_executable(accountable-confirmer-client src/ac.cpp src/ac_bls.cpp src/ecdsa_pki.cpp
+#        src/message.cpp src/socket.cpp main_client.cpp)
 
 
 target_link_libraries(accountable-confirmer OpenSSL::Crypto secp256k1)
+#target_link_libraries(accountable-confirmer-client OpenSSL::Crypto secp256k1)
 
 find_library(BLS bls384_256 lib)
 target_link_libraries(accountable-confirmer ${BLS})
+#target_link_libraries(accountable-confirmer-client ${BLS})

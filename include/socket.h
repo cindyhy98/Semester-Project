@@ -25,6 +25,8 @@ namespace socket_t {
 
     // return 1 if success; else fail??
     int SendBroadcastMessage(struct Socket *s, char *sendMessage);
+
+    int SetNonblocking(int fd);
 }
 
 #endif //ACCOUNTABLE_CONFIRMER_BROADCAST_H
