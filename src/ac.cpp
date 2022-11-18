@@ -109,15 +109,23 @@ namespace accountable_confirmer{
         }
     }
 
+    /* Return 0 if verified, Return -1 if not verified */
+    int LightCertVerify(struct AccountableConfirmer* ac, struct Process* recvP){
+        // TODO: use FastAggSignVerify in ac_bls.cpp
+        return 0;
+    }
+
 
 
     /* Combine the received partial signatures into light certificate (==aggregate signature)  */
     void CombinedLightCert(struct Process* p){
         int submitValue;
         vector<blsSignature> sigVec;
+        vector<blsPublicKey> pubVec;
 
         for(auto & elem : p->ac.lightCert){
             sigVec.push_back(elem.sig);
+            pubVec.push_back(elem.pub);
             submitValue = elem.value;
         }
 
@@ -130,6 +138,7 @@ namespace accountable_confirmer{
         ac_bls::AggSign(&aggSig, &sigVec[0], msgSize);
 
 //        struct message::MsgLightCert mlc = {.value = submitValue, .aggSig = aggSig};
+//        p->mlc = {.value = submitValue, .aggSig = aggSig, .pubKeyVector = pubVec};
         p->mlc = {.value = submitValue, .aggSig = aggSig};
 
 
@@ -224,6 +233,7 @@ namespace accountable_confirmer{
 
     bool Submit(struct Process* p, int v) {
         p->msg.msgSubmit.value = v;
+        p->msg.msgSubmit.pub = p->aggregateKey.pub;
         p->ac.valueSubmit = v;
 
         // SharedSign on the submit value
@@ -263,26 +273,37 @@ namespace accountable_confirmer{
     }
 
     void PseudoReceiveLightCert( struct Process* receiveProcess, struct Process* submitProcess){
-        printf("[PseudoReceiveSubmitProcess] [%d] receives message from [%d]\n", receiveProcess->id, submitProcess->id);
+        printf("[PseudoReceiveLightCert] [%d] receives LightCert from [%d]\n", receiveProcess->id, submitProcess->id);
+        // Verify the LightCert
+        // int verify = LightCertVerify(&receiveProcess->ac, submitProcess);
         receiveProcess->ac.obtainedLightCert.push_back(submitProcess->mlc);
-        printf("[PseudoReceiveSubmitProcess] [%d] number of obtainedLightCert = %lu\n", receiveProcess->id, receiveProcess->ac.obtainedLightCert.size());
+        printf("[PseudoReceiveLightCert] [%d] number of obtainedLightCert = %lu\n", receiveProcess->id, receiveProcess->ac.obtainedLightCert.size());
     }
 
-    void DetectConflictLightCert(struct Process* p){
-        printf("[DetectConflictLightCert] total elem = %lu\n", p->ac.obtainedLightCert.size());
+    bool DetectConflictLightCert(struct Process* p){
+        bool detect = false;
+        if(p->ac.obtainedLightCert.size() <= 1){
+            // No need to compare
+            return detect;
+        }
+
         message::MsgLightCert tmp = p->ac.obtainedLightCert.front();
-        printf("[DetectConflictLightCert] first value = %d\n", tmp.value);
+
 
         for(vector<message::MsgLightCert>::size_type i = 1; i != p->ac.obtainedLightCert.size(); i++) {
-            // find conflicting lightcert
-            printf("[DetectConflictLightCert] Finding conflicting lightcert\n");
+            printf("[DetectConflictLightCert] Detecting....\n");
 
-//            if(p->ac.obtainedLightCert[i].aggSig != tmp.aggSig && p->ac.confirm){
-//                // TODO: We reach the end of the proof!!
-//                printf("[DetectConflictLightCert] Reach the proof\n");
-//
-//            }
+            if(!(p->ac.obtainedLightCert[i] == tmp) && p->ac.confirm){
+                // TODO: How to represent the proof?
+                printf("[DetectConflictLightCert] first value = %d, second value = %d\n",tmp.value ,p->ac.obtainedLightCert[i].value);
+                printf("[DetectConflictLightCert] Reach the proof\n");
+                detect = true;
+                break;
+            }
         }
+
+        return detect;
+
 
     }
 
