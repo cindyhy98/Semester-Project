@@ -21,8 +21,8 @@
 #include "ecdsa_pki.h"
 #include "socket.h"
 
-
-#define NUMBER_OF_PROCESS size_t(4)
+#define NUMBER_OF_PROCESS 4
+#define NUMBER_OF_FAULTY 1
 
 using namespace std;
 
@@ -63,6 +63,7 @@ namespace accountable_confirmer{
 
     void InitProcess(struct Process* p, int portNumber);
 
+
     /* Accountable Confirmer main functions */
     void InitAC(struct AccountableConfirmer* ac);
 
@@ -87,7 +88,7 @@ namespace accountable_confirmer{
     /* Combine the received partial signatures into light certificate */
     void CombinedLightCert(struct Process *p);
 
-    void DetectConflictLightCert(struct AccountableConfirmer* ac);
+    void DetectConflictLightCert(struct Process *p);
 
 //    void DetectConflictFullCert(struct AccountableConfirmer* ac);
 

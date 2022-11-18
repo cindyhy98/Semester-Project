@@ -18,6 +18,10 @@ namespace message {
     struct MsgLightCert {
         int value;           // Submitted value
         blsSignature aggSig; // aggregate signature for the value
+
+//        bool operator==( const MsgLightCert &other){
+//            return value == other.value && aggSig == other.aggSig;
+//        }
     };
 
     struct MsgSubmit {

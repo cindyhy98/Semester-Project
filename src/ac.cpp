@@ -6,14 +6,10 @@
 
 using namespace std;
 
-#define NUMBER_OF_THREAD 4
-#define NUMBER_OF_FAULTY 1
 
-#define PROPOSE_VALUE_1 111
-#define PROPOSE_VALUE_2 222
 
 #define MAX_DIGIT 15 // biggest int is 2147482647
-#define PORT 9000    // maybe don't need this
+
 
 #define BUFFER_SIZE 4096
 
@@ -217,8 +213,7 @@ namespace accountable_confirmer{
         ecdsa_pki::KeyGen(&p->pkiKey);
 
         // init socket
-        // QUESTION: how to give the port number?
-        // -> allocate by the caller
+        // The portNumber is allocated by the caller
         socket_t::InitServerSocket(&p->serverSocket, portNumber);
         socket_t::InitBroadcastSocket(&p->broadcastSocket, portNumber);
 
@@ -250,7 +245,7 @@ namespace accountable_confirmer{
     }
 
     int Confirm(struct Process* p) {
-        if (p->ac.from.size() >= NUMBER_OF_THREAD - NUMBER_OF_FAULTY){
+        if (p->ac.from.size() >= NUMBER_OF_PROCESS - NUMBER_OF_FAULTY){
             printf("[Confirm] [%d] Confirm\n", p->id);
             p->ac.confirm = true;
 
@@ -270,16 +265,23 @@ namespace accountable_confirmer{
     void PseudoReceiveLightCert( struct Process* receiveProcess, struct Process* submitProcess){
         printf("[PseudoReceiveSubmitProcess] [%d] receives message from [%d]\n", receiveProcess->id, submitProcess->id);
         receiveProcess->ac.obtainedLightCert.push_back(submitProcess->mlc);
+        printf("[PseudoReceiveSubmitProcess] [%d] number of obtainedLightCert = %lu\n", receiveProcess->id, receiveProcess->ac.obtainedLightCert.size());
     }
 
-    void DetectConflictLightCert(struct AccountableConfirmer* ac){
-        message::MsgLightCert tmp = ac->obtainedLightCert.front();
-        for(vector<message::MsgLightCert>::size_type i = 1; i != ac->obtainedLightCert.size(); i++) {
-            // find conflicting lightcert
-            if(ac->obtainedLightCert[i].value != tmp.value && ac->confirm){
-                // TODO: We reach the end of the proof!!
+    void DetectConflictLightCert(struct Process* p){
+        printf("[DetectConflictLightCert] total elem = %lu\n", p->ac.obtainedLightCert.size());
+        message::MsgLightCert tmp = p->ac.obtainedLightCert.front();
+        printf("[DetectConflictLightCert] first value = %d\n", tmp.value);
 
-            }
+        for(vector<message::MsgLightCert>::size_type i = 1; i != p->ac.obtainedLightCert.size(); i++) {
+            // find conflicting lightcert
+            printf("[DetectConflictLightCert] Finding conflicting lightcert\n");
+
+//            if(p->ac.obtainedLightCert[i].aggSig != tmp.aggSig && p->ac.confirm){
+//                // TODO: We reach the end of the proof!!
+//                printf("[DetectConflictLightCert] Reach the proof\n");
+//
+//            }
         }
 
     }
