@@ -18,18 +18,20 @@ namespace message {
     struct MsgLightCert {
         int value;           // Submitted value
         blsSignature aggSig; // aggregate signature for the value
+//        vector<blsPublicKey> pubKeyVector; // all public keys of this signature
 
         bool operator==( const MsgLightCert &other){
-            return value == other.value &&
-            aggSig.v.x.d == other.aggSig.v.x.d &&
-            aggSig.v.y.d == other.aggSig.v.y.d &&
-            aggSig.v.z.d == other.aggSig.v.z.d;
+            return value == other.value;
+//            aggSig.v.x.d == other.aggSig.v.x.d &&
+//            aggSig.v.y.d == other.aggSig.v.y.d &&
+//            aggSig.v.z.d == other.aggSig.v.z.d;
         }
     };
 
     struct MsgSubmit {
         int value;           // Value to submit
         blsSignature sig;    // Signature for the value
+        blsPublicKey pub;    // Public key for the signature
     };
 
     struct MsgToSend {

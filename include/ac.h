@@ -80,6 +80,10 @@ namespace accountable_confirmer{
      * Return 0 if verified, Return -1 if not verified */
     int SubmitMsgVerify(struct AccountableConfirmer* ac, struct Process* recvP);
 
+    /* Verify the aggregate signature
+     * Return 0 if verified, Return -1 if not verified */
+    int LightCertVerify(struct AccountableConfirmer* ac, struct Process* recvP);
+
     bool Submit(struct Process* p, int v);
 
     /* Return 0 if the condition meets, otherwise return 1 */
@@ -88,7 +92,8 @@ namespace accountable_confirmer{
     /* Combine the received partial signatures into light certificate */
     void CombinedLightCert(struct Process *p);
 
-    void DetectConflictLightCert(struct Process *p);
+    /* Return true if detect conflict; otherwise return false */
+    bool DetectConflictLightCert(struct Process *p);
 
 //    void DetectConflictFullCert(struct AccountableConfirmer* ac);
 

@@ -57,8 +57,9 @@ namespace ac_bls {
     }
 
     /*
-    pubVec is n array of PublicKey
-    msgVec is (n * msgSize) -byte array, which concatenates n-byte messages of length msgSize
+     * pubVec is n array of PublicKey
+     * msgVec is (n * msgSize) -byte array, which concatenates n-byte messages of length msgSize
+     * return 1 if it is valid else 0
      */
     int AggSignVerify(const blsSignature *sig, const blsPublicKey *pubVec, const void *msgVec, mclSize msgSize, mclSize n){
         /*
