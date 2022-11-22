@@ -10,3 +10,6 @@ ecdsa_pki.h
 ecdsa_pki.cpp
 random.h
 secp256k1/
+
+# Async Networking Library
+salticidae/
