@@ -1,0 +1,6 @@
+# Build Directory
+build/
+
+# Ignore File
+.DS_Store
+.idea/
