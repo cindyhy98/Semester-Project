@@ -16,7 +16,7 @@
 #include <openssl/sha.h>
 
 /* Internal Library*/
-#include "ac_bls.h"
+#include "accountable_confirmer_bls.h"
 #include "message.h"
 #include "ecdsa_pki.h"
 #include "socket.h"

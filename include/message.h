@@ -9,7 +9,7 @@
 
 
 /* Internal Library*/
-#include "ac_bls.h"
+#include "accountable_confirmer_bls.h"
 #include "ecdsa_pki.h"
 
 using namespace std;

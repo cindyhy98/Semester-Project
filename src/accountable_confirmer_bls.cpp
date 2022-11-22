@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 /* Import BLS */
-#include "ac_bls.h"
+#include "accountable_confirmer_bls.h"
 
 using namespace std;
 namespace ac_bls {
