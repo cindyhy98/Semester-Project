@@ -3,13 +3,13 @@
 using namespace std;
 namespace message {
 
-    struct MsgSubmit m;
+    struct SubmitMsg m;
 
-    void GenerateMsgHash(struct MsgSubmit* m, unsigned char* hash){
+    void GenerateMsgHash(struct SubmitMsg* m, unsigned char* hash){
 
-        // Convert struct MsgSubmit to char array
-        char mChar[sizeof(MsgSubmit)+1];
-        memcpy(mChar, &m, sizeof(MsgSubmit));
+        // Convert struct SubmitMsg to char array
+        char mChar[sizeof(SubmitMsg)+1];
+        memcpy(mChar, &m, sizeof(SubmitMsg));
 
 //    unsigned char hash[SHA256_DIGEST_LENGTH]; -> should be passed into the function
         SHA256_CTX sha256;

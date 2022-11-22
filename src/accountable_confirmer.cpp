@@ -4,112 +4,86 @@
 /* Internal Library */
 #include "accountable_confirmer.h"
 
-using namespace std;
-
-
-
 #define MAX_DIGIT 15 // biggest int is 2147482647
 #define BUFFER_SIZE 4096
+
+using namespace std;
 
 namespace accountable_confirmer {
 
     struct Process P[NUMBER_OF_PROCESSES];
 
+    /* Return 1 if found, Return 0 if not found */
     int FindPidInVector(vector<int> vectorPID, int elem){
         vector<int>::iterator it = find(vectorPID.begin(), vectorPID.end(), elem);
-        if (it != vectorPID.end()){
-//            printf("pid(%d) is ALREADY in the vector\n", elem);
-//            return it - vectorPID.begin();
-            return 1;
-        } else {
-//            printf("pid(%d) is NOT YET in the vector\n", elem);
-            return 0;
-        }
+        if (it != vectorPID.end())   return 1;
+        else    return 0;
+
     }
 
     void InitAC(struct AccountableConfirmer* ac) {
-        ac->valueSubmit = 0;
+        ac->submitValue = 0;
         ac->confirm = false;
         ac->from.clear();
-        ac->lightCert.clear();
-        ac->fullCert.clear();
-        ac->obtainedLightCert.clear();
-        ac->obtainedFullCert.clear();
+        ac->partialSignature.clear();
+        ac->obtainedAggSignature.clear();
     }
 
-    void ShareSign(struct Process* p){
+    void ShareSign(struct Process* p) {
         char valueToSign[MAX_DIGIT + sizeof(char)];
-        sprintf(valueToSign, "%d", p->msg.msgSubmit.value);
+        sprintf(valueToSign, "%d", p->msg.value);
 
-        // now the signature for p->value is stored in Process P
-        accountable_confirmer_bls::Sign(&p->aggregateKey, &p->msg.msgSubmit.sig, valueToSign);
-        printf("[ShareSign] Create a partial signature for the submit value %d\n", p->msg.msgSubmit.value);
+        // Create a partial signature for the submit value (p->msg.value)
+        accountable_confirmer_bls::Sign(&p->keyPair, &p->msg.sig, valueToSign);
+        printf("[ShareSign] Create a partial signature for the submit value %d\n", p->msg.value);
 
     }
 
-    void SubmitMsgSign(struct Process* p){
-        // First, generate a SHA256 message hash for p->msg and store it in hash
-        message::GenerateMsgHash(&p->msg.msgSubmit, p->msg.msgHash);
-
-        // sign the msg with its PKI key
-        ecdsa_pki::Sign(&p->pkiKey, &p->msg.sig, p->msg.msgHash);
-        printf("[SubmitMsgSign] Sign the whole submit message with PKI key\n");
-    }
-
-    int ShareVerify(struct Process* p){
+    /* Return 1 if it is valid, Return 0 if not valid */
+    int ShareVerify(struct Process* p) {
         char valueSigned[MAX_DIGIT + sizeof(char)];
-        sprintf(valueSigned, "%d", p->msg.msgSubmit.value);
+        sprintf(valueSigned, "%d", p->msg.value);
 
-        /* return 1 if it is valid else 0 */
-        if(accountable_confirmer_bls::Verify(&p->aggregateKey, p->msg.msgSubmit.sig, valueSigned)){
+        if (accountable_confirmer_bls::Verify(&p->keyPair, p->msg.sig, valueSigned)) {
             printf("[ShareVerify] Successful\n");
             return 1;
-        }else{
+        } else {
             printf("[ShareVerify] Fail\n");
             return 0;
         }
 
     }
 
-    /* Return 0 if verified, Return -1 if not verified */
-    int SubmitMsgVerify(struct AccountableConfirmer* ac, struct Process* recvP){
-        // Authenticate the submitted msg
+    /* Return 1 if verified, Return 0 if not verified */
+    int SubmitMsgVerify(struct AccountableConfirmer* ac, struct Process* recvP) {
 
-        int resVerify = ecdsa_pki::Verify(&recvP->pkiKey, &recvP->msg.sig, recvP->msg.msgHash);
-        if (resVerify != 1){
-            // Not valid -> need some error handling
-            printf("[SubmitMsgVerify] This message is not authenticated!\n");
+        // Authenticate the whole submit msg (p->msg)
+        if (ShareVerify(recvP) && (ac->submitValue == recvP->msg.value) && !FindPidInVector(ac->from, recvP->id)) {
+            printf("[SubmitMsgVerify] Store the received message in the accountable confirmer\n");
+            ac->from.push_back(recvP->id);
+            ac->partialSignature.push_back(recvP->msg);
+            return 1;
+        } else {
             return 0;
-        }else{
-            // Valid message -> ShareVerify, valueRecv == valueSubmit, this process never be submitted already
-            printf("[SubmitMsgVerify] This message is authenticated!\n");
-
-            if(ShareVerify(recvP) && (ac->valueSubmit == recvP->msg.msgSubmit.value) && !FindPidInVector(ac->from, recvP->id)){
-                printf("[SubmitMsgVerify] Store the received message in the accountable confirmer\n");
-                ac->from.push_back(recvP->id);
-                ac->lightCert.push_back(recvP->msg.msgSubmit);
-                ac->fullCert.push_back(recvP->msg);
-                return 0;
-            }
-            return -1;
         }
+
     }
 
-    /* Return 0 if verified, Return -1 if not verified */
-    int LightCertVerify(struct AccountableConfirmer* ac, struct Process* recvP){
+    /* Return 1 if verified, Return 0 if not verified */
+    int AggregateSignatureVerify(struct AccountableConfirmer* ac, struct Process* recvP) {
         // TODO: use FastAggSignVerify in accountable_confirmer::_blscpp
         return 0;
     }
 
 
 
-    /* Combine the received partial signatures into light certificate (==aggregate signature)  */
-    void CombinedLightCert(struct Process* p){
+    /* Combine the received partial signatures into a aggregate signature */
+    void GenerateAggSignature(struct Process* p) {
         int submitValue;
         vector<blsSignature> sigVec;
         vector<blsPublicKey> pubVec;
 
-        for(auto & elem : p->ac.lightCert){
+        for(auto & elem : p->ac.partialSignature){
             sigVec.push_back(elem.sig);
             pubVec.push_back(elem.pub);
             submitValue = elem.value;
@@ -120,23 +94,23 @@ namespace accountable_confirmer {
         const size_t msgSize = strlen(valueToSign);
 
         blsSignature aggSig;
-        // The aggregate signature is stored in ac
+
+        // Create an aggregate signature for the collected partial signatures
         accountable_confirmer_bls::AggSign(&aggSig, &sigVec[0], msgSize);
 
-//        struct message::MsgLightCert mlc = {.value = submitValue, .aggSig = aggSig};
-//        p->mlc = {.value = submitValue, .aggSig = aggSig, .pubKeyVector = pubVec};
         p->mlc = {.value = submitValue, .aggSig = aggSig};
-
-
     }
 
 
 
-    void BroadcastSubmitProcess(struct Process* submitProcess){
-        printf("[BroadcastSubmitProcess] [%d] broadcast value %d to everyone\n",submitProcess->id, submitProcess->msg.msgSubmit.value);
+    void BroadcastSubmitProcess(struct Process* submitProcess) {
+        printf("[BroadcastSubmitProcess] [%d] broadcast value %d to everyone\n",submitProcess->id, submitProcess->msg.value);
+
         // Convert struct Process to char array
+        // TODO: need to use serialized library
         char mChar[sizeof(submitProcess)+1];
         memcpy(mChar, &submitProcess, sizeof(submitProcess));
+
         int ret = socket_t::SendBroadcastMessage(&submitProcess->broadcastSocket, mChar);
 
         if (ret != 1) {
@@ -145,8 +119,7 @@ namespace accountable_confirmer {
 
     }
 
-    // TODO: How to make it non-blocking?
-    void ReceiveSubmitProcess(struct Process* receiveProcess){
+    void ReceiveSubmitProcess(struct Process* receiveProcess) {
 //        char recvBuffer[BUFFER_SIZE];
         printf("[ReceiveSubmitProcess] [%d] start receiving msg...\n", receiveProcess->id);
         char *buf = NULL;
@@ -161,8 +134,8 @@ namespace accountable_confirmer {
 
     }
 
-    void BroadcastLightCert(struct message::MsgLightCert* mlc, struct Process* submitProcess){
-        printf("[BroadcastLightCert] [%d] broadcast LightCert to everyone\n", submitProcess->id);
+    void BroadcastAggSignature(struct message::SubmitAggSignMsg* mlc, struct Process* submitProcess) {
+        printf("[BroadcastAggSignature] [%d] broadcast AggSignature to everyone\n", submitProcess->id);
         // Convert struct Process to char array
         char mChar[sizeof(mlc)+1];
         memcpy(mChar, &mlc, sizeof(mlc));
@@ -173,7 +146,7 @@ namespace accountable_confirmer {
         }
     }
 
-    void ReceiveLightCert(struct Process* p){
+    void ReceiveAggSignature(struct Process* p) {
         char *buf = NULL;
         buf = (char *)malloc (sizeof(char) * BUFFER_SIZE);
         memset(buf, 0, BUFFER_SIZE);
@@ -181,42 +154,36 @@ namespace accountable_confirmer {
         /* The received message is stored in recvBuffer */
         socket_t::ReceiveMessageFromOthers(&p->serverSocket, buf);
 
-        struct message::MsgLightCert* tmpLightCert = (message::MsgLightCert *) buf;
-        p->ac.obtainedLightCert.push_back(*tmpLightCert);
+        struct message::SubmitAggSignMsg* tmpAggSignature = (message::SubmitAggSignMsg *) buf;
+        p->ac.obtainedAggSignature.push_back(*tmpAggSignature);
     }
 
     /* Main functionality */
-    void InitProcess(struct Process* p, int portNumber){
+    void InitProcess(struct Process* p, int portNumber) {
         p->id = portNumber;
 
-        // each process now has it own secret key and public key for enc/dec the message it commits
+        // Each process now has it own secret key and public key for enc/dec the message it commits
         accountable_confirmer_bls::Init();
-        accountable_confirmer_bls::KeyGen(&p->aggregateKey);
+        accountable_confirmer_bls::KeyGen(&p->keyPair);
 
-        // each process also has a pair of PKI secret key and PKI public key
-        ecdsa_pki::Init(&p->pkiKey);
-        ecdsa_pki::KeyGen(&p->pkiKey);
-
-        // init socket
+        // Init socket
         // The portNumber is allocated by the caller
         socket_t::InitServerSocket(&p->serverSocket, portNumber);
         socket_t::InitBroadcastSocket(&p->broadcastSocket, portNumber);
 
+        // Init the accountable confirmer
         InitAC(&p->ac);
 
         printf("[InitProcess] PID = %d\n", p->id);
     }
 
     bool Submit(struct Process* p, int v) {
-        p->msg.msgSubmit.value = v;
-        p->msg.msgSubmit.pub = p->aggregateKey.pub;
-        p->ac.valueSubmit = v;
+        p->msg.value = v;
+        p->msg.pub = p->keyPair.pub;
+        p->ac.submitValue = v;
 
         // SharedSign on the submit value
         ShareSign(p);
-
-        // After SharedSign, sign the whole submitted message
-        SubmitMsgSign(p);
 
         // Broadcast the signed submit message to everyone
         BroadcastSubmitProcess(p);
@@ -224,9 +191,9 @@ namespace accountable_confirmer {
         return true;
     }
 
-    void PseudoReceiveSubmitProcess(struct Process* receiveProcess, struct Process* submitProcess){
+    void PseudoReceiveSubmitProcess(struct Process* receiveProcess, struct Process* submitProcess) {
         printf("[PseudoReceiveSubmitProcess] [%d] receives message from [%d]\n", receiveProcess->id, submitProcess->id);
-        receiveProcess->ac.valueSubmit = submitProcess->msg.msgSubmit.value;
+        receiveProcess->ac.submitValue = submitProcess->msg.value;
         int verify = SubmitMsgVerify(&receiveProcess->ac, submitProcess); // Question: this value will never be used?
     }
 
@@ -236,43 +203,43 @@ namespace accountable_confirmer {
             p->ac.confirm = true;
 
             // Generate aggregate signature and store it in p
-            CombinedLightCert(p);
+            GenerateAggSignature(p);
 
-            // Broadcast the light cert to everyone
-            BroadcastLightCert(&p->mlc, p);
-            return 0;
+            // Broadcast the aggregate signature to everyone
+            BroadcastAggSignature(&p->mlc, p);
+            return 1;
         } else {
             printf("[Confirm] [%d] Not Yet confirm\n", p->id);
-            return 1;
+            return 0;
         }
 
     }
 
-    void PseudoReceiveLightCert( struct Process* receiveProcess, struct Process* submitProcess){
-        printf("[PseudoReceiveLightCert] [%d] receives LightCert from [%d]\n", receiveProcess->id, submitProcess->id);
-        // Verify the LightCert
-        // int verify = LightCertVerify(&receiveProcess->ac, submitProcess);
-        receiveProcess->ac.obtainedLightCert.push_back(submitProcess->mlc);
-        printf("[PseudoReceiveLightCert] [%d] number of obtainedLightCert = %lu\n", receiveProcess->id, receiveProcess->ac.obtainedLightCert.size());
+    void PseudoReceiveAggSignature(struct Process* receiveProcess, struct Process* submitProcess) {
+        printf("[PseudoReceiveAggSignature] [%d] receives AggSignature from [%d]\n", receiveProcess->id, submitProcess->id);
+        // Verify the AggSignature
+        // int verify = AggSignatureVerify(&receiveProcess->ac, submitProcess);
+        receiveProcess->ac.obtainedAggSignature.push_back(submitProcess->mlc);
+        printf("[PseudoReceiveAggSignature] [%d] number of obtainedAggSignature = %lu\n", receiveProcess->id, receiveProcess->ac.obtainedAggSignature.size());
     }
 
-    bool DetectConflictLightCert(struct Process* p){
+    bool DetectConflictAggSignature(struct Process* p) {
         bool detect = false;
-        if(p->ac.obtainedLightCert.size() <= 1){
+        if(p->ac.obtainedAggSignature.size() <= 1){
             // No need to compare
             return detect;
         }
 
-        message::MsgLightCert tmp = p->ac.obtainedLightCert.front();
+        message::SubmitAggSignMsg tmp = p->ac.obtainedAggSignature.front();
 
 
-        for(vector<message::MsgLightCert>::size_type i = 1; i != p->ac.obtainedLightCert.size(); i++) {
-            printf("[DetectConflictLightCert] Detecting....\n");
+        for(vector<message::SubmitAggSignMsg>::size_type i = 1; i != p->ac.obtainedAggSignature.size(); i++) {
+            printf("[DetectConflictAggSignature] Detecting....\n");
 
-            if(!(p->ac.obtainedLightCert[i] == tmp) && p->ac.confirm){
+            if(!(p->ac.obtainedAggSignature[i] == tmp) && p->ac.confirm){
                 // TODO: How to represent the proof?
-                printf("[DetectConflictLightCert] first value = %d, second value = %d\n",tmp.value ,p->ac.obtainedLightCert[i].value);
-                printf("[DetectConflictLightCert] Reach the proof\n");
+                printf("[DetectConflictAggSignature] first value = %d, second value = %d\n",tmp.value ,p->ac.obtainedAggSignature[i].value);
+                printf("[DetectConflictAggSignature] Reach the proof\n");
                 detect = true;
                 break;
             }

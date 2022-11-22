@@ -15,12 +15,12 @@
 using namespace std;
 namespace message {
 
-    struct MsgLightCert {
-        int value;           // Submitted value
-        blsSignature aggSig; // aggregate signature for the value
+    struct SubmitAggSignMsg {
+        int value;           // submit value
+        blsSignature aggSig; // Aggregate signature for the value
 //        vector<blsPublicKey> pubKeyVector; // all public keys of this signature
 
-        bool operator==( const MsgLightCert &other){
+        bool operator==( const SubmitAggSignMsg &other){
             return value == other.value;
 //            aggSig.v.x.d == other.aggSig.v.x.d &&
 //            aggSig.v.y.d == other.aggSig.v.y.d &&
@@ -28,21 +28,21 @@ namespace message {
         }
     };
 
-    struct MsgSubmit {
-        int value;           // Value to submit
+    struct SubmitMsg {
+        int value;           // submit value
         blsSignature sig;    // Signature for the value
         blsPublicKey pub;    // Public key for the signature
     };
 
     struct MsgToSend {
-        MsgSubmit msgSubmit;
+        SubmitMsg msgSubmit;
         unsigned char msgHash[SHA256_DIGEST_LENGTH];
-        secp256k1_ecdsa_signature sig;  //signature for the whole MsgSubmit
+        secp256k1_ecdsa_signature sig;  //signature for the whole SubmitMsg
     };
 
 
 // Generate MsgHash is the input of PKI signing
-    void GenerateMsgHash(struct MsgSubmit* m, unsigned char* hash);
+    void GenerateMsgHash(struct SubmitMsg* m, unsigned char* hash);
 }
 
 

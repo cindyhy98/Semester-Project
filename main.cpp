@@ -15,11 +15,11 @@ int portNumber[NUMBER_OF_PROCESSES] = {9000, 9001, 9002, 9003};
 bool confirm[NUMBER_OF_PROCESSES] = {false, false, false, false};
 bool detectConflict = false;
 
-int checkLightCert(int confirmProcess){
+int checkAggSignature(int confirmProcess){
     for(int k = 0; k < NUMBER_OF_PROCESSES; k++){
         if (k != confirmProcess) {
-            accountable_confirmer::PseudoReceiveLightCert(&P[k],&P[confirmProcess]);
-            detectConflict = accountable_confirmer::DetectConflictLightCert(&P[k]);
+            accountable_confirmer::PseudoReceiveAggSignature(&P[k],&P[confirmProcess]);
+            detectConflict = accountable_confirmer::DetectConflictAggSignature(&P[k]);
 
             if(detectConflict){
                 return 1;
@@ -57,9 +57,9 @@ int main(int argc,char *argv[])
                 accountable_confirmer::PseudoReceiveSubmitProcess(&P[i], &P[tmpIndex]);
 
                 if (!accountable_confirmer::Confirm(&P[i])){
-                    // Confirm and broadcast lightcert to everyone
+                    // Confirm and broadcast AggSignature to everyone
                     confirm[i] = true;
-                    if(checkLightCert(i)){
+                    if(checkAggSignature(i)){
                         printf("=========================================================================\n");
                         printf("Find the proof!\n");
                         return 0;
@@ -85,7 +85,7 @@ int main(int argc,char *argv[])
             if (!accountable_confirmer::Confirm(&P[i])){
                 // Confirm
                 confirm[i] = true;
-                if(checkLightCert(i)){
+                if(checkAggSignature(i)){
                     printf("=========================================================================\n");
                     printf("Find the proof!\n");
                     return 0;
@@ -107,8 +107,8 @@ int main(int argc,char *argv[])
 //    int index = 0;
 //    while(!detectConflict && index < NUMBER_OF_PROCESSES){
 //        if(confirm[index]){
-//            printf("=====================DETECT CONFLICT LIGHTCERT==============================\n");
-//            detectConflict = accountable_confirmer::DetectConflictLightCert(&P[index]);
+//            printf("=====================DETECT CONFLICT AggSignature==============================\n");
+//            detectConflict = accountable_confirmer::DetectConflictAggSignature(&P[index]);
 //        }
 //        index++;
 //    }

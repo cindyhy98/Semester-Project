@@ -1,12 +1,11 @@
 /* Standard Library */
 #include <stdio.h>
 
-/* Import BLS */
+/* Internal Library*/
 #include "accountable_confirmer_bls.h"
 
 using namespace std;
 namespace accountable_confirmer_bls {
-    struct Key k;
 
     void Init() {
         // init library at once before calling the other APIs
@@ -40,7 +39,7 @@ namespace accountable_confirmer_bls {
         printf("[accountable_confirmer_bls::Sign] Make a Signature\n");
     }
 
-    /* return 1 if it is valid else 0 */
+    /* Return 1 if it is valid else 0 */
     int Verify(Key* k, blsSignature sig, char msg[]) {
         const size_t msgSize = strlen(msg);
         return blsVerify(&sig, &k->pub, msg, msgSize);
@@ -51,7 +50,7 @@ namespace accountable_confirmer_bls {
         printf("[accountable_confirmer_bls::AggSign] Make a Aggregate Signature\n");
     }
 
-
+    /* Return 1 if it is valid else 0 */
     int FastAggSignVerify(const blsSignature *sig, const blsPublicKey *pubVec, mclSize n,  const void *msg, mclSize msgSize){
         return blsFastAggregateVerify(sig, pubVec, n, msg,msgSize);
     }

@@ -18,7 +18,7 @@
 /* Internal Library*/
 #include "accountable_confirmer_bls.h"
 #include "message.h"
-#include "ecdsa_pki.h"
+//#include "ecdsa_pki.h"
 #include "socket.h"
 
 #define NUMBER_OF_PROCESSES 4
@@ -29,23 +29,18 @@ using namespace std;
 namespace accountable_confirmer {
 
     struct AccountableConfirmer {
-        int valueSubmit;
-
+        int submitValue;
         bool confirm;
         vector<int> from;
-        vector<message::MsgSubmit> lightCert;
-        vector<message::MsgToSend> fullCert;
-
-        vector<message::MsgLightCert> obtainedLightCert; // set of aggregate signature?
-        vector<message::MsgToSend> obtainedFullCert;
+        vector<message::SubmitMsg> partialSignature;
+        vector<message::SubmitAggSignMsg> obtainedAggSignature; // set of aggregate signatures
 
     };
 
     struct Process {
         int id;
-        accountable_confirmer_bls::Key aggregateKey;   // for ShareSigned, ShareVerify
-        ecdsa_pki::Key pkiKey;      // pki
-        message::MsgToSend msg;
+        accountable_confirmer_bls::Key keyPair;   // for ShareSigned, ShareVerify
+        message::SubmitMsg msg;
 
         socket_t::Socket serverSocket;      // for receiving broadcast
         socket_t::Socket broadcastSocket;   // for sending broadcast
@@ -54,14 +49,8 @@ namespace accountable_confirmer {
 
         // this is a tmp value
         // -> as long as the implementation of broadcast is done, then this value can be removed
-        message::MsgLightCert mlc;
+        message::SubmitAggSignMsg mlc;
     };
-
-
-
-//    int FindPidInVector(vector<pid_t> vectorPID, pid_t elem);
-
-    void InitProcess(struct Process* p, int portNumber);
 
 
     /* Accountable Confirmer main functions */
@@ -69,31 +58,33 @@ namespace accountable_confirmer {
 
     /* Create partial signature */
     void ShareSign(struct Process* p);
-    /* Sign the whole Submit message with PKI private key (secp256k1) */
-    void SubmitMsgSign(struct Process* p);
 
-    /* Verify partial signature */
+
+    /* Verify partial signature
+     * Return 1 if verified, Return 0 if not verified */
     int ShareVerify(struct Process* p);
 
-
-    /* Verify PKI key and the partial signature
-     * Return 0 if verified, Return -1 if not verified */
+    /* Verify the partial signature
+     * Return 1 if verified, Return 0 if not verified */
     int SubmitMsgVerify(struct AccountableConfirmer* ac, struct Process* recvP);
 
     /* Verify the aggregate signature
-     * Return 0 if verified, Return -1 if not verified */
-    int LightCertVerify(struct AccountableConfirmer* ac, struct Process* recvP);
+     * Return 1 if verified, Return 0 if not verified
+     * TODO: need to implement */
+    int AggregateSignatureVerify(struct AccountableConfirmer* ac, struct Process* recvP);
+
+    void InitProcess(struct Process* p, int portNumber);
 
     bool Submit(struct Process* p, int v);
 
-    /* Return 0 if the condition meets, otherwise return 1 */
+    /* Return 1 if the condition meets, otherwise return 0 */
     int Confirm(struct Process* p);
 
-    /* Combine the received partial signatures into light certificate */
-    void CombinedLightCert(struct Process *p);
+    /* Combine the received partial signatures into aggregate signature */
+    void GenerateAggregateSignature(struct Process *p);
 
     /* Return true if detect conflict; otherwise return false */
-    bool DetectConflictLightCert(struct Process *p);
+    bool DetectConflictAggregateSignature(struct Process *p);
 
     void BroadcastSubmitProcess(struct Process* submitProcess);
 
@@ -101,11 +92,11 @@ namespace accountable_confirmer {
 
     void PseudoReceiveSubmitProcess(struct Process* receiveProcess, struct Process* submitProcess);
 
-    void BroadcastLightCert(struct message::MsgLightCert* mlc, struct Process* p);
+    void BroadcastAggregateSignature(struct message::SubmitAggSignMsg* mlc, struct Process* p);
 
-    void ReceiveLightCert(struct Process* p);
+    void ReceiveAggregateSignature(struct Process* p);
 
-    void PseudoReceiveLightCert( struct Process* receiveProcess, struct Process* submitProcess);
+    void PseudoReceiveAggregateSignature( struct Process* receiveProcess, struct Process* submitProcess);
 
 
 }
