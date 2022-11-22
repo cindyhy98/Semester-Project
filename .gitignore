@@ -4,3 +4,9 @@ build/
 # Ignore File
 .DS_Store
 .idea/
+
+# PKI
+ecdsa_pki.h
+ecdsa_pki.cpp
+random.h
+
