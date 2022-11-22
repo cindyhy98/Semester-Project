@@ -111,7 +111,7 @@ namespace accountable_confirmer {
         char mChar[sizeof(submitProcess)+1];
         memcpy(mChar, &submitProcess, sizeof(submitProcess));
 
-        int ret = socket_t::SendBroadcastMessage(&submitProcess->broadcastSocket, mChar);
+        int ret = socket_t::BroadcastMessage(&submitProcess->broadcastSocket, mChar);
 
         if (ret != 1) {
             perror("broadcast submit process error\n");
@@ -127,7 +127,7 @@ namespace accountable_confirmer {
         memset(buf, 0, BUFFER_SIZE);
 
         /* The received message is stored in recvBuffer */
-        socket_t::ReceiveMessageFromOthers(&receiveProcess->serverSocket, buf);
+        socket_t::ReceiveMessage(&receiveProcess->serverSocket, buf);
 
         struct Process* tmpProcess = (Process *) buf;
         int verify = SubmitMsgVerify(&receiveProcess->ac, tmpProcess); // Question: this value will never be used?
@@ -139,7 +139,7 @@ namespace accountable_confirmer {
         // Convert struct Process to char array
         char mChar[sizeof(mlc)+1];
         memcpy(mChar, &mlc, sizeof(mlc));
-        int ret = socket_t::SendBroadcastMessage(&submitProcess->broadcastSocket, mChar);
+        int ret = socket_t::BroadcastMessage(&submitProcess->broadcastSocket, mChar);
 
         if (ret != 1) {
             perror("broadcast error\n");
@@ -152,7 +152,7 @@ namespace accountable_confirmer {
         memset(buf, 0, BUFFER_SIZE);
 
         /* The received message is stored in recvBuffer */
-        socket_t::ReceiveMessageFromOthers(&p->serverSocket, buf);
+        socket_t::ReceiveMessage(&p->serverSocket, buf);
 
         struct message::SubmitAggSignMsg* tmpAggSignature = (message::SubmitAggSignMsg *) buf;
         p->ac.obtainedAggSignature.push_back(*tmpAggSignature);
