@@ -45,7 +45,7 @@ namespace accountable_confirmer {
         char valueSigned[MAX_DIGIT + sizeof(char)];
         sprintf(valueSigned, "%d", recvMsg->value);
 
-        if (accountable_confirmer_bls::Verify(recvMsg->pub, recvMsg->sig, valueSigned)) {
+        if (accountable_confirmer_bls::Verify(&recvMsg->pub, &recvMsg->sig, valueSigned)) {
             printf("[ShareVerify] Successful\n");
             return 1;
         } else {
@@ -71,7 +71,7 @@ namespace accountable_confirmer {
     }
 
     /* Return 1 if verified, Return 0 if not verified */
-    int AggregateSignatureVerify(struct AccountableConfirmer* ac, struct message::SubmitAggSignMsg * recvAggSign); {
+    int AggregateSignatureVerify(struct AccountableConfirmer* ac, struct message::SubmitAggSignMsg * recvAggSign) {
         // TODO: use FastAggSignVerify in accountable_confirmer::_blscpp
         return 0;
     }
@@ -88,8 +88,8 @@ namespace accountable_confirmer {
     /* Combine the received partial signatures into a aggregate signature */
     void GenerateAggSignature(struct Process* p) {
         int submitValue;
-        vector<accountable_confirmer_bls::Signature> sigVec;
-        vector<accountable_confirmer_bls::PublicKey> pubVec;
+        vector<blsSignature> sigVec;
+        vector<blsPublicKey> pubVec;
 
         for(auto & elem : p->ac.partialSignature){
             sigVec.push_back(elem.sig);
@@ -101,7 +101,7 @@ namespace accountable_confirmer {
         sprintf(valueToSign, "%d", submitValue);
         const size_t msgSize = strlen(valueToSign);
 
-        accountable_confirmer_bls::Signature aggSig;
+        blsSignature aggSig;
 
         // Create an aggregate signature for the collected partial signatures
         accountable_confirmer_bls::AggSign(&aggSig, &sigVec[0], msgSize);
@@ -147,6 +147,7 @@ namespace accountable_confirmer {
         ifstream ifs(buf);
         boost::archive::text_iarchive iarchive(ifs);
         iarchive >> recvMsg;
+
 //        struct message::SubmitMsg* recvMsg = (struct message::SubmitMsg *) buf;
         int verify = SubmitMsgVerify(&receiveProcess->ac, recvMsg); // Question: this value will never be used?
 
