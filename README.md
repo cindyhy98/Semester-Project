@@ -1,7 +1,5 @@
 # Semester-Project
 
-## Network library
-    - Boost.asio
+## Accountable-Confirmer
 
-## PKI
-- secp256k1
+

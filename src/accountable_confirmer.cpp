@@ -45,6 +45,7 @@ namespace accountable_confirmer {
         char valueSigned[MAX_DIGIT + sizeof(char)];
         sprintf(valueSigned, "%d", recvMsg->value);
 
+        /* Verify the partial signature of the submit value */
         if (accountable_confirmer_bls::Verify(&recvMsg->pub, &recvMsg->sig, valueSigned)) {
             printf("[ShareVerify] Successful\n");
             return 1;
@@ -58,13 +59,15 @@ namespace accountable_confirmer {
     /* Return 1 if verified, Return 0 if not verified */
     int SubmitMsgVerify(struct AccountableConfirmer* ac, struct message::SubmitMsg* recvMsg) {
 
-        // Authenticate the whole submit msg
+        /* Authenticate the whole submit message */
         if (ShareVerify(recvMsg) && (ac->submitValue == recvMsg->value) && !FindPidInVector(ac->from, recvMsg->submitPid)) {
+            printf("[SubmitMsgVerify] Verify\n");
             printf("[SubmitMsgVerify] Store the received message in the accountable confirmer\n");
             ac->from.push_back(recvMsg->submitPid);
             ac->partialSignature.push_back(*recvMsg);
             return 1;
         } else {
+            printf("[SubmitMsgVerify] Not verify\n");
             return 0;
         }
 
@@ -75,15 +78,6 @@ namespace accountable_confirmer {
         // TODO: use FastAggSignVerify in accountable_confirmer::_blscpp
         return 0;
     }
-
-//    void * process(void * ptr) {
-//        struct Socket * sock;
-//        if (!ptr) pthread_exit(0);
-//        sock = (struct Socket *) ptr;
-//
-//    }
-
-
 
     /* Combine the received partial signatures into a aggregate signature */
     void GenerateAggSignature(struct Process* p) {
@@ -113,14 +107,14 @@ namespace accountable_confirmer {
         printf("[BroadcastSubmitMessage] [%d] broadcast value %d to everyone\n",submitProcess->id, submitProcess->msg.value);
 
         // Old way of serialize the message
-        // char mChar[sizeof(submitProcess)+1];
-        // memcpy(mChar, &submitProcess->msg, sizeof(submitProcess));
+         char buf[sizeof(submitProcess->msg)+1];
+         memcpy(buf, &submitProcess->msg, sizeof(submitProcess));
 
-        // Serialized the input
-        char* buf;
-        ofstream ofs(buf);
-        boost::archive::text_oarchive oarchive(ofs);
-        oarchive << submitProcess->msg;
+//        // Serialized the input
+//        char* buf;
+//        ofstream ofs(buf);
+//        boost::archive::text_oarchive oarchive(ofs);
+//        oarchive << submitProcess->msg;
 
         int ret = socket_t::BroadcastMessage(&submitProcess->broadcastSocket, buf);
 
@@ -134,7 +128,7 @@ namespace accountable_confirmer {
 
     void ReceiveSubmitMessage(struct Process* receiveProcess) {
 //        char recvBuffer[BUFFER_SIZE];
-        printf("[ReceiveSubmitMessage] [%d] start receiving msg...\n", receiveProcess->id);
+        printf("[ReceiveSubmitMessage] [%d] Start receiving msg...\n", receiveProcess->id);
         char *buf = NULL;
         buf = (char *)malloc (sizeof(char) * BUFFER_SIZE);
         memset(buf, 0, BUFFER_SIZE);
@@ -142,25 +136,52 @@ namespace accountable_confirmer {
         /* The received message is stored in recvBuffer */
         socket_t::ReceiveMessage(&receiveProcess->serverSocket, buf);
 
-        struct message::SubmitMsg* recvMsg;
-        // Deserialize buf
-        ifstream ifs(buf);
-        boost::archive::text_iarchive iarchive(ifs);
-        iarchive >> recvMsg;
+//        struct message::SubmitMsg* recvMsg;
+//        // Deserialize buf
+//        ifstream ifs(buf);
+//        boost::archive::text_iarchive iarchive(ifs);
+//        iarchive >> recvMsg;
+
+        struct message::SubmitMsg* recvMsg = (struct message::SubmitMsg*) buf;
+
+        printf("[ReceiveSubmitMessage] [%d] put recvMsg into its queue\n", receiveProcess->id);
+        receiveProcess->recvMsgQueue.push(*recvMsg);
+
 
 //        struct message::SubmitMsg* recvMsg = (struct message::SubmitMsg *) buf;
-        int verify = SubmitMsgVerify(&receiveProcess->ac, recvMsg); // Question: this value will never be used?
+//        int verify = SubmitMsgVerify(&receiveProcess->ac, recvMsg); // Question: this value will never be used?
 
     }
 
-    void BroadcastAggSignature(struct Process* submitProcess) {
+    int CheckRecvMsg(struct Process* p){
+        int size = p->recvMsgQueue.size();
+        for (int i = 0; i < size; i++) {
+            SubmitMsgVerify(&p->ac, &p->recvMsgQueue.front());
+            p->recvMsgQueue.pop();
+        }
+
+        if (p->ac.from.size() >= NUMBER_OF_PROCESSES - NUMBER_OF_FAULTY_PROCESSES) {
+            printf("[CheckRecvMsg] Receiving enough messages -> progress to Confirm phase\n");
+            Confirm(p);
+            return 1;
+        } else {
+            printf("[CheckRecvMsg] Not receiving enough messages\n");
+            return 0;
+        }
+
+    }
+
+    void BroadcastAggregateSignature(struct Process* submitProcess) {
         printf("[BroadcastAggSignature] [%d] broadcast AggSignature to everyone\n", submitProcess->id);
 
-        // Serialized the input
-        char* buf;
-        fstream ofs(buf);
-        boost::archive::text_oarchive oa(ofs);
-        oa << submitProcess->aggSignMsg;
+        char buf[sizeof(submitProcess->aggSignMsg)+1];
+        memcpy(buf, &submitProcess->aggSignMsg, sizeof(submitProcess));
+
+//        // Serialized the input
+//        char* buf;
+//        fstream ofs(buf);
+//        boost::archive::text_oarchive oa(ofs);
+//        oa << submitProcess->aggSignMsg;
 
         int ret = socket_t::BroadcastMessage(&submitProcess->broadcastSocket, buf);
 
@@ -169,22 +190,45 @@ namespace accountable_confirmer {
         }
     }
 
-    void ReceiveAggSignature(struct Process* p) {
+    void ReceiveAggregateSignature(struct Process* receiveProcess) {
+        printf("[ReceiveAggSignature] [%d] Start receiving aggSignature...\n", receiveProcess->id);
+
         char *buf = NULL;
         buf = (char *)malloc (sizeof(char) * BUFFER_SIZE);
         memset(buf, 0, BUFFER_SIZE);
 
         /* The received message is stored in recvBuffer */
-        socket_t::ReceiveMessage(&p->serverSocket, buf);
+        socket_t::ReceiveMessage(&receiveProcess->serverSocket, buf);
 
-        struct message::SubmitAggSignMsg* recvAggSignature;
-        // Deserialize buf
-        ifstream ifs(buf);
-        boost::archive::text_iarchive iarchive(ifs);
-        iarchive >> recvAggSignature;
+//        struct message::SubmitAggSignMsg* recvAggSignature;
+//        // Deserialize buf
+//        ifstream ifs(buf);
+//        boost::archive::text_iarchive iarchive(ifs);
+//        iarchive >> recvAggSignature;
+
+        struct message::SubmitAggSignMsg* recvAggSignature = (struct message::SubmitAggSignMsg*) buf;
+
+        printf("[ReceiveAggSignature] [%d] put recvAggSignature into its queue\n", receiveProcess->id);
+        receiveProcess->recvAggSignQueue.push(*recvAggSignature);
 
 //        struct message::SubmitAggSignMsg* tmpAggSignature = (message::SubmitAggSignMsg *) buf;
-        p->ac.obtainedAggSignature.push_back(*recvAggSignature);
+//        receiveProcess->ac.obtainedAggSignature.push_back(*recvAggSignature);
+    }
+
+    int CheckRecvAggSignature(struct Process* p){
+        int size = p->recvAggSignQueue.size();
+        for (int i = 0; i < size; i++) {
+            p->ac.obtainedAggSignature.push_back(p->recvAggSignQueue.front());
+            p->recvAggSignQueue.pop();
+        }
+
+        int detect = 0;
+        if (size >= 2) {
+            printf("[CheckRecvAggSignature] receive enough aggSignatures -> progress to detect phase\n");
+            detect = DetectConflictAggSignature(p);
+        }
+
+        return detect;
     }
 
     /* Main functionality */
@@ -194,6 +238,10 @@ namespace accountable_confirmer {
         // Each process now has it own secret key and public key for enc/dec the message it commits
         accountable_confirmer_bls::Init();
         accountable_confirmer_bls::KeyGen(&p->keyPair);
+
+        // Clear the receiving queue
+        while (!p->recvMsgQueue.empty()) p->recvMsgQueue.pop();
+        while (!p->recvAggSignQueue.empty()) p->recvAggSignQueue.pop();
 
         // Init socket
         // The portNumber is allocated by the caller
@@ -205,6 +253,8 @@ namespace accountable_confirmer {
 
         printf("[InitProcess] PID = %d\n", p->id);
     }
+
+
 
     bool Submit(struct Process* p, int v) {
         struct message::SubmitMsg initMsg {
@@ -232,22 +282,14 @@ namespace accountable_confirmer {
         int verify = SubmitMsgVerify(&receiveProcess->ac, &submitProcess->msg); // Question: this value will never be used?
     }
 
-    int Confirm(struct Process* p) {
-        if (p->ac.from.size() >= NUMBER_OF_PROCESSES - NUMBER_OF_FAULTY_PROCESSES){
-            printf("[Confirm] [%d] Confirm\n", p->id);
-            p->ac.confirm = true;
+    void Confirm(struct Process* p) {
+        printf("[Confirm] [%d] Confirmed\n", p->id);
+        p->ac.confirm = true;
+        // Generate aggregate signature and store it in p
+        GenerateAggSignature(p);
 
-            // Generate aggregate signature and store it in p
-            GenerateAggSignature(p);
-
-            // Broadcast the aggregate signature to everyone
-            BroadcastAggSignature(p);
-            return 1;
-        } else {
-            printf("[Confirm] [%d] Not Yet confirm\n", p->id);
-            return 0;
-        }
-
+        // Broadcast the aggregate signature to everyone
+        BroadcastAggregateSignature(p);
     }
 
     void PseudoReceiveAggSignature(struct Process* receiveProcess, struct Process* submitProcess) {
@@ -258,12 +300,12 @@ namespace accountable_confirmer {
         printf("[PseudoReceiveAggSignature] [%d] number of obtainedAggSignature = %lu\n", receiveProcess->id, receiveProcess->ac.obtainedAggSignature.size());
     }
 
-    bool DetectConflictAggSignature(struct Process* p) {
-        bool detect = false;
-        if(p->ac.obtainedAggSignature.size() <= 1){
-            // No need to compare
-            return detect;
-        }
+    int DetectConflictAggSignature(struct Process* p) {
+        int detect = 0;
+//        if(p->ac.obtainedAggSignature.size() <= 1){
+//            // No need to compare
+//            return detect;
+//        }
 
         message::SubmitAggSignMsg tmp = p->ac.obtainedAggSignature.front();
 
@@ -272,10 +314,9 @@ namespace accountable_confirmer {
             printf("[DetectConflictAggSignature] Detecting....\n");
 
             if(!(p->ac.obtainedAggSignature[i] == tmp) && p->ac.confirm){
-                // TODO: How to represent the proof?
                 printf("[DetectConflictAggSignature] first value = %d, second value = %d\n",tmp.value ,p->ac.obtainedAggSignature[i].value);
                 printf("[DetectConflictAggSignature] Reach the proof\n");
-                detect = true;
+                detect = 1;
                 break;
             }
         }
@@ -284,5 +325,7 @@ namespace accountable_confirmer {
 
 
     }
+
+
 
 }

@@ -15,7 +15,6 @@ using namespace std;
 namespace socket_t {
 
     int InitServerSocket(struct Socket* s, int portNumber){
-
         int ret = 1;
         s->port = portNumber;
         s->addrLen = sizeof(struct sockaddr_in);

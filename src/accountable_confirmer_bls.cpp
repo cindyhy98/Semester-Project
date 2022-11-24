@@ -32,6 +32,7 @@ namespace accountable_confirmer_bls {
         printf("[accountable_confirmer_bls::KeyGen] Generate PublicKey from SecretKey\n");
     }
 
+
     void Sign(Key* k, blsSignature *sig, char msg[]) {
         const size_t msgSize = strlen(msg);
 

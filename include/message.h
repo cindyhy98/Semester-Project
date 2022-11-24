@@ -30,8 +30,7 @@ namespace message {
 
         template<class Archive>
         void serialize(Archive& ar, const unsigned version){
-            ar& value;
-
+            ar & value;
 
             for (int i = 0; i < 2; i++){
                 for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
