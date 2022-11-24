@@ -8,8 +8,6 @@
 #include <openssl/sha.h>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-
 
 /* Internal Library*/
 #include "accountable_confirmer_bls.h"
@@ -20,7 +18,7 @@ namespace message {
 
     struct SubmitAggSignMsg {
         int value;           // submit value
-        accountable_confirmer_bls::Signature aggSig; // Aggregate signature for the value
+        blsSignature aggSig; // Aggregate signature for the value
 //        vector<blsPublicKey> pubKeyVector; // all public keys of this signature
 
         bool operator==( const SubmitAggSignMsg &other){
@@ -33,22 +31,72 @@ namespace message {
         template<class Archive>
         void serialize(Archive& ar, const unsigned version){
             ar& value;
-            ar& aggSig;
+
+
+            for (int i = 0; i < 2; i++){
+                for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
+                    ar & aggSig.v.x.d[i].d[j];
+                }
+
+            }
+            for (int i = 0; i < 2; i++){
+                for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
+                    ar & aggSig.v.y.d[i].d[j];
+                }
+
+            }
+            for (int i = 0; i < 2; i++){
+                for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
+                    ar & aggSig.v.z.d[i].d[j];
+                }
+            }
+//            ar& aggSig;
         }
     };
 
     struct SubmitMsg {
-        int submitPid;        // id if the submit process
-        int value;           // submit value
-        accountable_confirmer_bls::Signature sig;    // Signature for the value
-        accountable_confirmer_bls::PublicKey pub;    // Public key for the signature
+        int submitPid;                               // id for the submit process
+        int value;                                   // submit value
+        blsSignature sig;    // Signature for the value
+        blsPublicKey pub;    // Publickey for the signature
 
         template<class Archive>
         void serialize(Archive& ar, const unsigned version){
             ar & submitPid;
             ar & value;
-            ar & sig;
-            ar & pub;
+
+            // Serialize blsSignature
+            for (int i = 0; i < 2; i++){
+                for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
+                    ar & sig.v.x.d[i].d[j];
+                }
+
+            }
+            for (int i = 0; i < 2; i++){
+                for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
+                    ar & sig.v.y.d[i].d[j];
+                }
+
+            }
+            for (int i = 0; i < 2; i++){
+                for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
+                    ar & sig.v.z.d[i].d[j];
+                }
+
+            }
+
+            // Serialize blsPublicKey
+            for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
+                ar & pub.v.x.d[j];
+            }
+            for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
+                ar & pub.v.y.d[j];
+            }
+            for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
+                ar & pub.v.z.d[j];
+            }
+//            ar & sig;
+//            ar & pub;
         }
     };
 
