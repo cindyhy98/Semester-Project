@@ -8,7 +8,7 @@
 using namespace std;
 namespace socket_t {
     struct Socket {
-        /* socketAddr can be either server address (receiving others message) or broadcast address (sending broadcast to others)*/
+        /* socketAddr can be either server address (receiving messages) or broadcast address (broadcast to others)*/
         struct sockaddr_in socketAddr;
         int port;
         unsigned int addrLen;

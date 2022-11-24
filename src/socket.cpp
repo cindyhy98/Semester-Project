@@ -25,7 +25,7 @@ namespace socket_t {
         fcntl(s->sock, F_SETFL, O_NONBLOCK);
         if (s->sock < 0) {
             perror("sock error\n");
-            return -1;
+            return 0;
         }
 
         memset((void*)&s->socketAddr, 0, s->addrLen);
@@ -37,7 +37,7 @@ namespace socket_t {
         ret = bind(s->sock, (struct sockaddr*)&s->socketAddr, s->addrLen);
         if (ret < 0) {
             perror("bind error\n");
-            return -1;
+            return 0;
         }
 
         return 1;
@@ -53,7 +53,7 @@ namespace socket_t {
         s->sock = socket(AF_INET, SOCK_DGRAM, 0);
         if (s->sock < 0) {
             perror("sock error\n");
-            return -1;
+            return 0;
         }
 
         /* Enable broadcast */
@@ -61,7 +61,7 @@ namespace socket_t {
         if (ret == -1) {
             perror("setsockopt error");
             close(s->sock);
-            return -1;
+            return 0;
         }
 
         memset((void*)&s->socketAddr, 0, s->addrLen);
@@ -75,23 +75,18 @@ namespace socket_t {
     void ReceiveMessage(struct Socket* s, char* recvBuffer){
         struct sockaddr_in client_addr;
         fd_set readfd;
-        int ret = 0;
-        ssize_t count;
-//        char recvBuffer[1024];
+        int recvStringLen;                /* Length of received string */
 
-        // Question: how to make it unblocking?
+
         while(1) {
-            FD_ZERO(&readfd);
-            FD_SET(s->sock, &readfd);
-            ret = select(s->sock+1, &readfd, NULL, NULL, 0);
-            if (ret > 0) {
-                if (FD_ISSET(s->sock, &readfd)) {
-                    printf("[socket_t::ReceiveMessage]");
-                    count = recvfrom(s->sock, &recvBuffer, sizeof(recvBuffer), 0, (struct sockaddr*)&client_addr, &s->addrLen);
-                    printf("\nClient connection information:\n\t IP: %s, Port: %d\n",
-                               inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-                }
+            if ((recvStringLen = recvfrom(s->sock, &recvBuffer, sizeof(recvBuffer), 0, (struct sockaddr*)&client_addr, &s->addrLen)) > 0){
+                printf("[socket_t::ReceiveMessage] received");
+                printf("\nClient connection information:\n\t IP: %s, Port: %d\n",
+                       inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+                recvBuffer[recvStringLen] = '\n';
             }
+
+
         }
     }
 
@@ -103,7 +98,7 @@ namespace socket_t {
         if (ret != -1) {
             return 1;
         } else {
-            return -1;
+            return 0;
         }
     }
 
@@ -122,4 +117,5 @@ namespace socket_t {
     return ioctl(fd, FIOBIO, &flags);
 #endif
     }
+
 }
