@@ -118,9 +118,9 @@ namespace accountable_confirmer {
 
         // Serialized the input
         char* buf;
-        fstream ofs(buf);
-        boost::archive::text_oarchive oa(ofs);
-        oa << submitProcess->msg;
+        ofstream ofs(buf);
+        boost::archive::text_oarchive oarchive(ofs);
+        oarchive << submitProcess->msg;
 
         int ret = socket_t::BroadcastMessage(&submitProcess->broadcastSocket, buf);
 
@@ -142,7 +142,12 @@ namespace accountable_confirmer {
         /* The received message is stored in recvBuffer */
         socket_t::ReceiveMessage(&receiveProcess->serverSocket, buf);
 
-        struct message::SubmitMsg* recvMsg = (struct message::SubmitMsg *) buf;
+        struct message::SubmitMsg* recvMsg;
+        // Deserialize buf
+        ifstream ifs(buf);
+        boost::archive::text_iarchive iarchive(ifs);
+        iarchive >> recvMsg;
+//        struct message::SubmitMsg* recvMsg = (struct message::SubmitMsg *) buf;
         int verify = SubmitMsgVerify(&receiveProcess->ac, recvMsg); // Question: this value will never be used?
 
     }
@@ -171,8 +176,14 @@ namespace accountable_confirmer {
         /* The received message is stored in recvBuffer */
         socket_t::ReceiveMessage(&p->serverSocket, buf);
 
-        struct message::SubmitAggSignMsg* tmpAggSignature = (message::SubmitAggSignMsg *) buf;
-        p->ac.obtainedAggSignature.push_back(*tmpAggSignature);
+        struct message::SubmitAggSignMsg* recvAggSignature;
+        // Deserialize buf
+        ifstream ifs(buf);
+        boost::archive::text_iarchive iarchive(ifs);
+        iarchive >> recvAggSignature;
+
+//        struct message::SubmitAggSignMsg* tmpAggSignature = (message::SubmitAggSignMsg *) buf;
+        p->ac.obtainedAggSignature.push_back(*recvAggSignature);
     }
 
     /* Main functionality */
