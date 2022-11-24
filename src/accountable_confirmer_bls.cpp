@@ -40,9 +40,9 @@ namespace accountable_confirmer_bls {
     }
 
     /* Return 1 if it is valid else 0 */
-    int Verify(blsPublicKey pub, blsSignature sig, char msg[]) {
+    int Verify(blsPublicKey *pub, blsSignature *sig, char msg[]){
         const size_t msgSize = strlen(msg);
-        return blsVerify(&sig, &pub, msg, msgSize);
+        return blsVerify(sig, pub, msg, msgSize);
     }
 
     void AggSign(blsSignature *aggSig, const blsSignature *sigVec, mclSize n) {
