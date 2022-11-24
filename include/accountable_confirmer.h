@@ -4,6 +4,7 @@
 /* Standard Library */
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include <cassert>
 #include <set>
 #include <string>
@@ -14,6 +15,7 @@
 
 /* External Library */
 #include <openssl/sha.h>
+
 
 /* Internal Library*/
 #include "accountable_confirmer_bls.h"
@@ -41,17 +43,13 @@ namespace accountable_confirmer {
         int id;
         accountable_confirmer_bls::Key keyPair;   // for ShareSigned, ShareVerify
         message::SubmitMsg msg;
+        message::SubmitAggSignMsg aggSignMsg;
 
         socket_t::Socket serverSocket;      // for receiving broadcast
         socket_t::Socket broadcastSocket;   // for sending broadcast
 
         AccountableConfirmer ac;
-
-        // this is a tmp value
-        // -> as long as the implementation of broadcast is done, then this value can be removed
-        message::SubmitAggSignMsg mlc;
     };
-
 
     /* Accountable Confirmer main functions */
     void InitAC(struct AccountableConfirmer* ac);
@@ -62,16 +60,18 @@ namespace accountable_confirmer {
 
     /* Verify partial signature
      * Return 1 if verified, Return 0 if not verified */
-    int ShareVerify(struct Process* p);
+    int ShareVerify(struct message::SubmitMsg* recvMsg);
 
     /* Verify the partial signature
      * Return 1 if verified, Return 0 if not verified */
-    int SubmitMsgVerify(struct AccountableConfirmer* ac, struct Process* recvP);
+    int SubmitMsgVerify(struct AccountableConfirmer* ac, struct message::SubmitMsg* recvMsg);
 
     /* Verify the aggregate signature
      * Return 1 if verified, Return 0 if not verified
      * TODO: need to implement */
-    int AggregateSignatureVerify(struct AccountableConfirmer* ac, struct Process* recvP);
+    int AggregateSignatureVerify(struct AccountableConfirmer* ac, struct message::SubmitAggSignMsg * recvAggSign);
+
+//    void * process(void * ptr);
 
     void InitProcess(struct Process* p, int portNumber);
 
@@ -86,13 +86,13 @@ namespace accountable_confirmer {
     /* Return true if detect conflict; otherwise return false */
     bool DetectConflictAggregateSignature(struct Process *p);
 
-    void BroadcastSubmitProcess(struct Process* submitProcess);
+    void BroadcastSubmitMessage(struct Process* submitProcess);
 
-    void ReceiveSubmitProcess(struct Process* receiveProcess);
+    void ReceiveSubmitMessage(struct Process* receiveProcess);
 
-    void PseudoReceiveSubmitProcess(struct Process* receiveProcess, struct Process* submitProcess);
+    void PseudoReceiveSubmitMessage(struct Process* receiveProcess, struct Process* submitProcess);
 
-    void BroadcastAggregateSignature(struct message::SubmitAggSignMsg* mlc, struct Process* p);
+    void BroadcastAggregateSignature(struct Process* p, struct message::SubmitAggSignMsg* aggSignMsg);
 
     void ReceiveAggregateSignature(struct Process* p);
 

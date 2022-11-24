@@ -5,6 +5,14 @@ namespace message {
 
     struct SubmitMsg m;
 
+    void InitSubmitMsg(struct SubmitMsg* m, struct SubmitMsg* initValue) {
+
+        m->submitPid = initValue->submitPid;
+        m->value = initValue->value;
+        m->pub = initValue->pub;
+        m->sig = initValue->sig;
+    }
+
     void GenerateMsgHash(struct SubmitMsg* m, unsigned char* hash){
 
         // Convert struct SubmitMsg to char array
