@@ -15,8 +15,8 @@ namespace accountable_confirmer {
     struct Process P[NUMBER_OF_PROCESSES];
 
     /* Return 1 if found, Return 0 if not found */
-    int FindPidInVector(vector<int> vectorPID, int elem){
-        vector<int>::iterator it = find(vectorPID.begin(), vectorPID.end(), elem);
+    int FindPidInVector(vector<pid_t> vectorPID, pid_t elem){
+        vector<pid_t>::iterator it = find(vectorPID.begin(), vectorPID.end(), elem);
         if (it != vectorPID.end())   return 1;
         else    return 0;
 
@@ -36,7 +36,7 @@ namespace accountable_confirmer {
 
         // Create a partial signature for the submit value (p->msg.value)
         accountable_confirmer_bls::Sign(&p->keyPair, &p->msg.sig, valueToSign);
-        printf("[ShareSign] Create a partial signature for the submit value %d\n", p->msg.value);
+        printf("[ShareSign] [%d] Create a partial signature for the submit value %d\n",p->id, p->msg.value);
 
     }
 
@@ -155,17 +155,18 @@ namespace accountable_confirmer {
 
     int CheckRecvMsg(struct Process* p){
         int size = p->recvMsgQueue.size();
+        printf("[CheckRecvMsg] [%d] Received queue size = %d\n",p->id, size);
         for (int i = 0; i < size; i++) {
             SubmitMsgVerify(&p->ac, &p->recvMsgQueue.front());
             p->recvMsgQueue.pop();
         }
 
         if (p->ac.from.size() >= NUMBER_OF_PROCESSES - NUMBER_OF_FAULTY_PROCESSES) {
-            printf("[CheckRecvMsg] Receiving enough messages -> progress to Confirm phase\n");
+            printf("[CheckRecvMsg] [%d] Receiving enough messages -> progress to Confirm phase\n", p->id);
             Confirm(p);
             return 1;
         } else {
-            printf("[CheckRecvMsg] Not receiving enough messages\n");
+            printf("[CheckRecvMsg] [%d] Not receiving enough messages\n", p->id);
             return 0;
         }
 
@@ -217,6 +218,7 @@ namespace accountable_confirmer {
 
     int CheckRecvAggSignature(struct Process* p){
         int size = p->recvAggSignQueue.size();
+        printf("[CheckRecvAggSignature] [%d] Received queue size = %d\n",p->id, size);
         for (int i = 0; i < size; i++) {
             p->ac.obtainedAggSignature.push_back(p->recvAggSignQueue.front());
             p->recvAggSignQueue.pop();
@@ -233,7 +235,8 @@ namespace accountable_confirmer {
 
     /* Main functionality */
     void InitProcess(struct Process* p, int portNumber) {
-        p->id = portNumber;
+
+        p->id = getpid();
 
         // Each process now has it own secret key and public key for enc/dec the message it commits
         accountable_confirmer_bls::Init();
@@ -251,12 +254,13 @@ namespace accountable_confirmer {
         // Init the accountable confirmer
         InitAC(&p->ac);
 
-        printf("[InitProcess] PID = %d\n", p->id);
+        printf("[InitProcess] [%d] Init\n", p->id);
     }
 
 
 
     bool Submit(struct Process* p, int v) {
+        printf("[Submit] [%d] submit value %d \n", p->id, v);
         struct message::SubmitMsg initMsg {
             .submitPid = p->id,
             .value = v,

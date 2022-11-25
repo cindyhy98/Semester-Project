@@ -1,6 +1,6 @@
 #include "socket.h"
 
-
+#include <string>
 #include <unistd.h>     /* for close() */
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,27 +15,43 @@ using namespace std;
 namespace socket_t {
 
     int InitServerSocket(struct Socket* s, int portNumber){
+        string addr[5] = {"127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"};
         int ret = 1;
+        int opt = 1;
         s->port = portNumber;
         s->addrLen = sizeof(struct sockaddr_in);
 
+//        printf("[InitServerSocket] addr = %s\n", addr[id].c_str());
+
         /* Create socket for sending/receiving datagrams */
         s->sock = socket(AF_INET, SOCK_DGRAM, 0);
-        fcntl(s->sock, F_SETFL, O_NONBLOCK);
         if (s->sock < 0) {
             perror("sock error\n");
+            return 0;
+        }
+        if (setsockopt(s->sock, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) == -1)
+        {
+            perror("setsockopt failed");
+            close(s->sock);
+            return 0;
+        }
+        if (setsockopt(s->sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+        {
+            perror("setsockopt failed");
+            close(s->sock);
             return 0;
         }
 
         memset((void*)&s->socketAddr, 0, s->addrLen);
         s->socketAddr.sin_family = AF_INET;                  /* Internet address family */
         s->socketAddr.sin_addr.s_addr = htons(INADDR_ANY);   /* Any incoming interface */
+//        s->socketAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
         s->socketAddr.sin_port = htons(s->port);
 
         /* Bind the addr to socket -> for receiving other's broadcast */
-        ret = bind(s->sock, (struct sockaddr*)&s->socketAddr, s->addrLen);
+        ret = ::bind(s->sock, (struct sockaddr*) &s->socketAddr, s->addrLen);
         if (ret < 0) {
-            perror("bind error\n");
+            printf("[InitServerSocket] bind error for port %d \n", s->port);
             return 0;
         }
 
@@ -44,6 +60,7 @@ namespace socket_t {
 
     int InitBroadcastSocket(struct Socket* s, int portNumber){
         int broadcastEnable = 1;
+
         int ret = 1;
         s->port = portNumber;
         s->addrLen = sizeof(struct sockaddr_in);
@@ -63,6 +80,7 @@ namespace socket_t {
             return 0;
         }
 
+
         memset((void*)&s->socketAddr, 0, s->addrLen);
         s->socketAddr.sin_family = AF_INET;             /* Internet address family */
         s->socketAddr.sin_addr.s_addr = htons(INADDR_BROADCAST);
@@ -72,21 +90,27 @@ namespace socket_t {
     }
 
     void ReceiveMessage(struct Socket* s, char* recvBuffer){
-        struct sockaddr_in client_addr;
+//        struct sockaddr_in client_addr = s->socketAddr;
         fd_set readfd;
         int recvStringLen;                /* Length of received string */
 
-
         while(1) {
-            if ((recvStringLen = recvfrom(s->sock, &recvBuffer, sizeof(recvBuffer), 0, (struct sockaddr*)&client_addr, &s->addrLen)) > 0){
-                printf("[socket_t::ReceiveMessage] received");
-                printf("\nClient connection information:\n\t IP: %s, Port: %d\n",
-                       inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-                recvBuffer[recvStringLen] = '\n';
+            FD_ZERO(&readfd);
+            FD_SET(s->sock, &readfd);
+            if (select(s->sock+1, &readfd, NULL, NULL, 0) > 0) {
+                if (FD_ISSET(s->sock, &readfd)) {
+                    if ((recvStringLen = recvfrom(s->sock, &recvBuffer, sizeof(recvBuffer), 0, (struct sockaddr*)&s->socketAddr, &s->addrLen)) > 0){
+                        printf("[socket_t::ReceiveMessage] port %d received", s->port);
+                        printf("\nClient connection information:\n\t IP: %s, Port: %d\n",
+                               inet_ntoa(s->socketAddr.sin_addr), ntohs(s->socketAddr.sin_port));
+                        recvBuffer[recvStringLen] = '\n';
+                    }
+                }
             }
 
 
         }
+        close(s->sock);
     }
 
     int BroadcastMessage(struct Socket* s, char * sendMessage){
@@ -95,8 +119,10 @@ namespace socket_t {
                          (struct sockaddr*) &s->socketAddr, s->addrLen);
 
         if (ret != -1) {
+            printf("[socket_t::BroadcastMessage] Success\n");
             return 1;
         } else {
+            printf("[socket_t::BroadcastMessage] Fail\n");
             return 0;
         }
     }

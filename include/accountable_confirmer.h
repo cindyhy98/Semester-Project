@@ -31,13 +31,13 @@ namespace accountable_confirmer {
     struct AccountableConfirmer {
         int submitValue;
         bool confirm;
-        vector<int> from;
+        vector<pid_t> from;
         vector<message::SubmitMsg> partialSignature;
         vector<message::SubmitAggSignMsg> obtainedAggSignature; // set of aggregate signatures
     };
 
     struct Process {
-        int id;
+        pid_t id;
         accountable_confirmer_bls::Key keyPair;   // for ShareSigned, ShareVerify
         message::SubmitMsg msg;
         message::SubmitAggSignMsg aggSignMsg;

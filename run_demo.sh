@@ -2,14 +2,19 @@
 CORRECT_VALUE=334949
 WRONG_VALUE=666666
 
+PORT_ZERO=9000
+PORT_ONE=9001
+PORT_TWO=9002
+PORT_THREE=9003
+
 echo "starting replica 0"
-./accountable-confirmer 0 9000 CORRECT_VALUE &
+./accountable-confirmer $PORT_ZERO $CORRECT_VALUE &
 echo "starting replica 1"
-./accountable-confirmer 1 9001 CORRECT_VALUE &
+./accountable-confirmer $PORT_ONE $CORRECT_VALUE &
 echo "starting replica 2"
-./accountable-confirmer 2 9002 CORRECT_VALUE &
+./accountable-confirmer $PORT_TWO $CORRECT_VALUE &
 echo "starting replica 3"
-./accountable-confirmer 3 9003 WRONG_VALUE &
+./accountable-confirmer $PORT_THREE $WRONG_VALUE &
 
 
 #rep=({0..2})
