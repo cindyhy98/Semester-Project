@@ -5,8 +5,10 @@
 #define BLS_ETH
 #include <mcl/bn_c384_256.h>
 #include <bls/bls.h>
+#include <vector>
+#include <iostream>
 
-
+using namespace std;
 
 namespace accountable_confirmer_bls {
 
@@ -22,10 +24,10 @@ namespace accountable_confirmer_bls {
 
 //    void SerializeSignature(blsSignature sig);
 
-    void Sign(Key* k, blsSignature *sig, char msg[]);
+    void Sign(Key* k, blsSignature* sig, char msg[]);
 
     /* return 1 if it is valid else 0 */
-    int Verify(blsPublicKey *pub, blsSignature *sig, char msg[]);
+    int Verify(blsPublicKey* pub, blsSignature* sig, char msg[]);
 
     void AggSign(blsSignature *aggSig, const blsSignature *sigVec, mclSize n);
 

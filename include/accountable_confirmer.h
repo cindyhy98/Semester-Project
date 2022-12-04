@@ -20,9 +20,16 @@
 #include "message.h"
 //#include "ecdsa_pki.h"
 #include "socket.h"
+#include "tcp_connection.h"
+#include "tcp_server.h"
+#include "tcp_client.h"
+
+#include <boost/asio.hpp>
+typedef io::io_context ioContext;
 
 #define NUMBER_OF_PROCESSES 4
-#define NUMBER_OF_FAULTY_PROCESSES 1
+#define NUMBER_OF_FAULTY_PROCESSES 2
+#define MAX_MESSAGE_LENGTH 512
 
 using namespace std;
 
@@ -31,21 +38,26 @@ namespace accountable_confirmer {
     struct AccountableConfirmer {
         int submitValue;
         bool confirm;
-        vector<pid_t> from;
+        vector<int> from;
         vector<message::SubmitMsg> partialSignature;
         vector<message::SubmitAggSignMsg> obtainedAggSignature; // set of aggregate signatures
     };
 
     struct Process {
-        pid_t id;
+        int id;
         accountable_confirmer_bls::Key keyPair;   // for ShareSigned, ShareVerify
         message::SubmitMsg msg;
+        vector<byte> serializeMsg;
         message::SubmitAggSignMsg aggSignMsg;
+        vector<byte> serializeAggSign;
         queue<message::SubmitMsg> recvMsgQueue;
         queue<message::SubmitAggSignMsg> recvAggSignQueue;
 
-        socket_t::Socket serverSocket;      // for receiving broadcast
-        socket_t::Socket broadcastSocket;   // for sending broadcast
+//        socket_t::Socket serverSocket;      // for receiving broadcast
+//        socket_t::Socket broadcastSocket;   // for sending broadcast
+//        int peersPortNumber[NUMBER_OF_PROCESSES];
+//        vector<TCPClient::pointer> clients;
+        vector<thread> clientThread;
         AccountableConfirmer ac;
     };
 
@@ -72,7 +84,7 @@ namespace accountable_confirmer {
 
 //    void Start(struct Process* p);
 
-    void InitProcess(struct Process* p, int portNumber);
+    void InitProcess(struct Process* p, int portNumber, int *peersPortNumber);
 
 
 
@@ -87,28 +99,20 @@ namespace accountable_confirmer {
     /* Return true if detect conflict; otherwise return false */
     int DetectConflictAggSignature(struct Process* p);
 
-    void BroadcastSubmitMessage(struct Process* submitProcess);
-
-    void ReceiveSubmitMessage(struct Process* receiveProcess);
+    void BroadcastSubmitMessage(struct Process* p);
 
     /* Check all received messages from the queue
      * If there's enough messages -> go to confirm phase
      * Return 1 if it's confirmed, otherwise return 0 */
     int CheckRecvMsg(struct Process* p);
 
-    void PseudoReceiveSubmitMessage(struct Process* receiveProcess, struct Process* submitProcess);
-
     void BroadcastAggregateSignature(struct Process* p, struct message::SubmitAggSignMsg* aggSignMsg);
-
-    void ReceiveAggregateSignature(struct Process* receiveProcess);
 
     /* Check all received aggSignature from the queue
      * If there's enough aggSignature -> og to detect phase
      * Return 1 if detect some faulty guys, otherwise return 0 */
     int CheckRecvAggSignature(struct Process* p);
 
-    void PseudoReceiveAggregateSignature( struct Process* receiveProcess, struct Process* submitProcess);
-
-
+    void Close(struct Process* p);
 }
 #endif //ACCOUNTABLE_CONFIRMER_AC_H

@@ -19,7 +19,7 @@ namespace accountable_confirmer_bls {
         // use the latest eth2.0 spec
         blsSetETHmode(BLS_ETH_MODE_LATEST);
 
-        printf("[accountable_confirmer_bls::Init] Successful! \n");
+//        printf("[accountable_confirmer_bls::Init] Successful! \n");
     }
 
     void KeyGen(Key* k) {
@@ -29,26 +29,26 @@ namespace accountable_confirmer_bls {
         // get PublicKey pub from SecretKey sec
         blsGetPublicKey(&k->pub, &k->sec);
 
-        printf("[accountable_confirmer_bls::KeyGen] Generate PublicKey from SecretKey\n");
+//        printf("[accountable_confirmer_bls::KeyGen] Generate PublicKey from SecretKey\n");
     }
 
 
-    void Sign(Key* k, blsSignature *sig, char msg[]) {
+    void Sign(Key* k, blsSignature* sig, char msg[]) {
         const size_t msgSize = strlen(msg);
 
         blsSign(sig, &k->sec, msg, msgSize);
-        printf("[accountable_confirmer_bls::Sign] Make a Signature\n");
+//        printf("[accountable_confirmer_bls::Sign] Make a Signature\n");
     }
 
     /* Return 1 if it is valid else 0 */
-    int Verify(blsPublicKey *pub, blsSignature *sig, char msg[]){
+    int Verify(blsPublicKey* pub, blsSignature* sig, char msg[]){
         const size_t msgSize = strlen(msg);
         return blsVerify(sig, pub, msg, msgSize);
     }
 
     void AggSign(blsSignature *aggSig, const blsSignature *sigVec, mclSize n) {
         blsAggregateSignature(aggSig, sigVec, n);
-        printf("[accountable_confirmer_bls::AggSign] Make a Aggregate Signature\n");
+//        printf("[accountable_confirmer_bls::AggSign] Make a Aggregate Signature\n");
     }
 
     /* Return 1 if it is valid else 0 */
