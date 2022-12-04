@@ -28,88 +28,15 @@ namespace message {
 //            aggSig.v.z.d == other.aggSig.v.z.d;
         }
 
-        template<class Archive>
-        void serialize(Archive& ar, const unsigned version){
-            ar & value;
-
-            for (int i = 0; i < 2; i++){
-                for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
-                    ar & aggSig.v.x.d[i].d[j];
-                }
-
-            }
-            for (int i = 0; i < 2; i++){
-                for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
-                    ar & aggSig.v.y.d[i].d[j];
-                }
-
-            }
-            for (int i = 0; i < 2; i++){
-                for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
-                    ar & aggSig.v.z.d[i].d[j];
-                }
-            }
-//            ar& aggSig;
-        }
     };
 
     struct SubmitMsg {
-        int submitPid;                               // id for the submit process
-        int value;                                   // submit value
-        blsSignature sig;    // Signature for the value
+        int submitPid;            // id for the submit process
+        int value;                // submit value
+        blsSignature sig;         // Signature for the value
         blsPublicKey pub;    // Publickey for the signature
-
-        template<class Archive>
-        void serialize(Archive& ar, const unsigned version){
-            ar & submitPid;
-            ar & value;
-
-            // Serialize blsSignature
-            for (int i = 0; i < 2; i++){
-                for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
-                    ar & sig.v.x.d[i].d[j];
-                }
-
-            }
-            for (int i = 0; i < 2; i++){
-                for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
-                    ar & sig.v.y.d[i].d[j];
-                }
-
-            }
-            for (int i = 0; i < 2; i++){
-                for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
-                    ar & sig.v.z.d[i].d[j];
-                }
-
-            }
-
-            // Serialize blsPublicKey
-            for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
-                ar & pub.v.x.d[j];
-            }
-            for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
-                ar & pub.v.y.d[j];
-            }
-            for (int j = 0; j < MCLBN_FP_UNIT_SIZE; j++){
-                ar & pub.v.z.d[j];
-            }
-//            ar & sig;
-//            ar & pub;
-        }
     };
 
-    void InitSubmitMsg(struct SubmitMsg* m, struct SubmitMsg* initValue);
-
-//    struct MsgToSend {
-//        SubmitMsg msgSubmit;
-//        unsigned char msgHash[SHA256_DIGEST_LENGTH];
-//        secp256k1_ecdsa_signature sig;  //signature for the whole SubmitMsg
-//    };
-
-
-// Generate MsgHash is the input of PKI signing
-//    void GenerateMsgHash(struct SubmitMsg* m, unsigned char* hash);
 }
 
 
