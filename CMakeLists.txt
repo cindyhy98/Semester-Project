@@ -41,14 +41,19 @@ endif()
 
 
 # executable
-add_executable(accountable-confirmer
-        main.cpp
+#add_executable(accountable-confirmer
+#        main.cpp
+#        src/accountable_confirmer.cpp
+#        src/accountable_confirmer_bls.cpp
+#        src/socket.cpp src/network.cpp src/network_client.cpp)
+
+#add_executable(accountable-confirmer src/network_server.cpp src/tcp_connection.cpp src/tcp_server.cpp)
+#add_executable(accountable-confirmer_client src/network_client.cpp src/tcp_client.cpp)
+
+add_executable(accountable-confirmer main.cpp
         src/accountable_confirmer.cpp
         src/accountable_confirmer_bls.cpp
-        src/message.cpp
-        src/socket.cpp)
-
-
+        src/tcp_server.cpp src/tcp_client.cpp src/tcp_connection.cpp)
 
 
 find_library(BLS bls384_256 lib)
