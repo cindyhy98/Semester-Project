@@ -28,91 +28,80 @@
 typedef io::io_context ioContext;
 
 #define NUMBER_OF_PROCESSES 4
-#define NUMBER_OF_FAULTY_PROCESSES 2
+#define NUMBER_OF_FAULTY_PROCESSES 1
 #define MAX_MESSAGE_LENGTH 512
 
 using namespace std;
 
 namespace accountable_confirmer {
 
+    /* This is a global variable that record every peer's value */
     struct AccountableConfirmer {
-        int submitValue;
-        bool confirm;
-        vector<int> from;
-        vector<message::SubmitMsg> partialSignature;
-        vector<message::SubmitAggSignMsg> obtainedAggSignature; // set of aggregate signatures
+        int value[NUMBER_OF_PROCESSES];
+        bool confirm[NUMBER_OF_PROCESSES];
+        vector<int> from[NUMBER_OF_PROCESSES];
+        vector<message::SubmitMsg> partialSignature[NUMBER_OF_PROCESSES];
+        vector<message::SubmitAggSign> obtainedAggSignature[NUMBER_OF_PROCESSES];
     };
 
-    struct Process {
+    struct Peer {
         int id;
         accountable_confirmer_bls::Key keyPair;   // for ShareSigned, ShareVerify
         message::SubmitMsg msg;
         vector<byte> serializeMsg;
-        message::SubmitAggSignMsg aggSignMsg;
+        message::SubmitAggSign aggSignMsg;
         vector<byte> serializeAggSign;
         queue<message::SubmitMsg> recvMsgQueue;
-        queue<message::SubmitAggSignMsg> recvAggSignQueue;
+        queue<message::SubmitAggSign> recvAggSignQueue;
 
-//        socket_t::Socket serverSocket;      // for receiving broadcast
-//        socket_t::Socket broadcastSocket;   // for sending broadcast
-//        int peersPortNumber[NUMBER_OF_PROCESSES];
-//        vector<TCPClient::pointer> clients;
         vector<thread> clientThread;
-        AccountableConfirmer ac;
     };
 
     /* Accountable Confirmer main functions */
 
-    /* Init the AccountableCOnfirmer inside a Process */
-    void InitAC(struct AccountableConfirmer* ac);
-
     /* Create partial signature */
-    void ShareSign(struct Process* p);
+    void ShareSign(struct Peer* p);
 
     /* Verify partial signature
-     * Return 1 if verified, Return 0 if not verified */
+    * Return 1 if verified, Return 0 if not verified */
     int ShareVerify(struct message::SubmitMsg* recvMsg);
 
-    /* Verify the whole submit message
-     * Return 1 if verified, Return 0 if not verified */
-    int SubmitMsgVerify(struct AccountableConfirmer* ac, struct message::SubmitMsg* recvMsg);
-
-    /* Verify the aggregate signature
-     * Return 1 if verified, Return 0 if not verified
-     * TODO: need to implement */
-    int AggregateSignatureVerify(struct AccountableConfirmer* ac, struct message::SubmitAggSignMsg * recvAggSign);
-
-//    void Start(struct Process* p);
-
-    void InitProcess(struct Process* p, int portNumber, int *peersPortNumber);
-
-
-
-    bool Submit(struct Process* p, int v);
-
-
-    void Confirm(struct Process* p);
+    /* Verify the whole submit message */
+    void SubmitMsgVerify(struct AccountableConfirmer* ac, struct message::SubmitMsg* recvMsg);
 
     /* Combine the received partial signatures into aggregate signature */
-    void GenerateAggregateSignature(struct Process* p);
+    void GenerateAggSignature(struct Peer* p, struct AccountableConfirmer* ac);
 
-    /* Return true if detect conflict; otherwise return false */
-    int DetectConflictAggSignature(struct Process* p);
+    /* Verify the aggregate signature
+     * Return 1 if verified, Return 0 if not verified */
+//    int AggregateSignatureVerify(struct AccountableConfirmerOld* aco, struct message::SubmitAggSign * recvAggSign);
 
-    void BroadcastSubmitMessage(struct Process* p);
+    void BroadcastSubmitMessage(struct Peer* p);
+
+    void BroadcastAggregateSignature(struct Peer* p);
+
+    /* Init the AccountableConfirmer */
+    void InitAccountableConfirmer(struct AccountableConfirmer* ac);
+
+    void InitPeer(struct Peer* p, int id, int portNumber);
+
+    void Submit(struct Peer* p, struct AccountableConfirmer* ac, int v);
+
+    void Confirm(struct Peer* p, struct AccountableConfirmer* ac);
 
     /* Check all received messages from the queue
      * If there's enough messages -> go to confirm phase
      * Return 1 if it's confirmed, otherwise return 0 */
-    int CheckRecvMsg(struct Process* p);
-
-    void BroadcastAggregateSignature(struct Process* p, struct message::SubmitAggSignMsg* aggSignMsg);
+    int CheckRecvMsg(struct Peer* p, struct AccountableConfirmer* ac);
 
     /* Check all received aggSignature from the queue
      * If there's enough aggSignature -> og to detect phase
      * Return 1 if detect some faulty guys, otherwise return 0 */
-    int CheckRecvAggSignature(struct Process* p);
+    int CheckRecvAggSignature(struct Peer* p, struct AccountableConfirmer* ac);
 
-    void Close(struct Process* p);
+    /* Return true if detect conflict; otherwise return false */
+    int DetectConflictAggSignature(struct Peer* p, struct AccountableConfirmer* ac);
+
+    void Close(struct Peer* p);
 }
 #endif //ACCOUNTABLE_CONFIRMER_AC_H
