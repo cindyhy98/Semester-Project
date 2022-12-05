@@ -10,15 +10,15 @@
 #define SUBMIT_VALUE_FAKE 666666
 using namespace std;
 
-accountable_confirmer::Process P[NUMBER_OF_PROCESSES];
+accountable_confirmer::Peer P[NUMBER_OF_PROCESSES];
 int portNumber[NUMBER_OF_PROCESSES] = {9000, 9001, 9002, 9003};
 bool confirm[NUMBER_OF_PROCESSES] = {false, false, false, false};
 bool detectConflict = false;
 
-//int checkAggSignature(int confirmProcess){
+//int checkAggSignature(int confirmPeer){
 //    for(int k = 0; k < NUMBER_OF_PROCESSES; k++){
-//        if (k != confirmProcess) {
-//            accountable_confirmer::PseudoReceiveAggSignature(&P[k],&P[confirmProcess]);
+//        if (k != confirmPeer) {
+//            accountable_confirmer::PseudoReceiveAggSignature(&P[k],&P[confirmPeer]);
 //            detectConflict = accountable_confirmer::DetectConflictAggSignature(&P[k]);
 //
 //            if(detectConflict){
@@ -36,7 +36,7 @@ int main(int argc,char *argv[])
 
         for(int i = 0; i < NUMBER_OF_PROCESSES; i++){
             printf("===================== Init ==============================\n");
-            accountable_confirmer::InitProcess(&P[i], portNumber[i]);
+            accountable_confirmer::InitPeer(&P[i], portNumber[i]);
 
 //        socket_t::InitServerSocket(&P[i].serverSocket, portNumber[i]);
         }

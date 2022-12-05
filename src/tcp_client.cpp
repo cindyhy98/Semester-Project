@@ -65,7 +65,8 @@ void TCPClient::asyncRead() {
 void TCPClient::onRead(net_error ec, size_t bytesTransferred) {
     if (ec) {
         // close the socket when there is an error
-        Stop();
+        printf("error occurs in client read\n");
+//        Stop();
         return;
     }
 

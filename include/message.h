@@ -16,12 +16,13 @@
 using namespace std;
 namespace message {
 
-    struct SubmitAggSignMsg {
+    struct SubmitAggSign {
+        int pid;            // id for the submit process
         int value;           // submit value
         blsSignature aggSig; // Aggregate signature for the value
 //        vector<blsPublicKey> pubKeyVector; // all public keys of this signature
 
-        bool operator==( const SubmitAggSignMsg &other){
+        bool operator==( const SubmitAggSign &other){
             return value == other.value;
 //            aggSig.v.x.d == other.aggSig.v.x.d &&
 //            aggSig.v.y.d == other.aggSig.v.y.d &&
@@ -31,9 +32,9 @@ namespace message {
     };
 
     struct SubmitMsg {
-        int submitPid;            // id for the submit process
-        int value;                // submit value
-        blsSignature sig;         // Signature for the value
+        int pid;            // id for the submit process
+        int value;          // submit value
+        blsSignature sig;   // Signature for the value
         blsPublicKey pub;    // Publickey for the signature
     };
 

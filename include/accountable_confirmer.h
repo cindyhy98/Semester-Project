@@ -55,6 +55,10 @@ namespace accountable_confirmer {
         queue<message::SubmitAggSign> recvAggSignQueue;
 
         vector<thread> clientThread;
+        vector<thread> recvThread;
+        bool recvMsgFlag;
+        bool recvAggSignFlag;
+
     };
 
     /* Accountable Confirmer main functions */
@@ -83,7 +87,7 @@ namespace accountable_confirmer {
     /* Init the AccountableConfirmer */
     void InitAccountableConfirmer(struct AccountableConfirmer* ac);
 
-    void InitPeer(struct Peer* p, int id, int portNumber);
+    void InitPeer(struct Peer* p, struct AccountableConfirmer* ac, int id, int portNumber);
 
     void Submit(struct Peer* p, struct AccountableConfirmer* ac, int v);
 
@@ -92,7 +96,7 @@ namespace accountable_confirmer {
     /* Check all received messages from the queue
      * If there's enough messages -> go to confirm phase
      * Return 1 if it's confirmed, otherwise return 0 */
-    int CheckRecvMsg(struct Peer* p, struct AccountableConfirmer* ac);
+    void CheckRecvMsg(struct Peer* p, struct AccountableConfirmer* ac);
 
     /* Check all received aggSignature from the queue
      * If there's enough aggSignature -> og to detect phase

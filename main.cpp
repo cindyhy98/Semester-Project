@@ -20,8 +20,22 @@ using namespace std;
 int userCount = 0;
 int postFlag = 0;
 
-void ParseAggSignMessage(string message, message::SubmitAggSignMsg* recvAggSign) {
+accountable_confirmer::Peer P;
+accountable_confirmer::AccountableConfirmer AC;
+
+bool ParseAggSignMessage(string message, message::SubmitAggSign* recvAggSign) {
+
     int start = 0; int end = (int)message.find("::");
+    string pid_str(message.substr(start, end));
+    recvAggSign->pid = atoi(pid_str.c_str());
+
+//    if (recvAggSign->pid == P.id) {
+//        /* Ignore the message that comes from yourself */
+//        printf("Ignore aggSig coming from yourself\n");
+//        return false;
+//    }
+
+    start = end+2; end = (int)message.find("::");
     string value_str(message.substr(start, end-start));
     recvAggSign->value = atoi(value_str.c_str());
 
@@ -36,12 +50,21 @@ void ParseAggSignMessage(string message, message::SubmitAggSignMsg* recvAggSign)
     memcpy(sig_byte, sig_str.data(), sig_sz);
     byte* sig_tmp = sig_byte;
     blsSignatureDeserialize(&recvAggSign->aggSig, sig_tmp, sig_sz);
+
+    return true;
 }
 
-void ParseSubmitMessage(string message, message::SubmitMsg* recvMsg) {
+bool ParseSubmitMessage(string message, message::SubmitMsg* recvMsg) {
+
     int start = 0; int end = (int)message.find("::");
     string pid_str(message.substr(start, end));
-    recvMsg->submitPid = atoi(pid_str.c_str());
+    recvMsg->pid = atoi(pid_str.c_str());
+
+//    if (recvMsg->pid == P.id) {
+//        /* Ignore the message that comes from yourself */
+//        printf("Ignore message coming from yourself\n");
+//        return false;
+//    }
 
     start = end+2; end = (int)message.find("::", start);
     string value_str(message.substr(start, end-start));
@@ -70,6 +93,37 @@ void ParseSubmitMessage(string message, message::SubmitMsg* recvMsg) {
     memcpy(pub_byte, pub_str.data(), pub_sz);
     byte* pub_tmp = pub_byte;
     blsPublicKeyDeserialize(&recvMsg->pub, pub_tmp, pub_sz);
+
+    return true;
+}
+
+void ParseMessage(const std::string& message) {
+
+    int start = 0; int end = (int)message.find("::");
+    string message_type(message.substr(start, end));
+    string trim_message = message.substr(end+2, message.length());
+
+    if (message_type == "submit") {
+        message::SubmitMsg* recvMsg;
+        if (ParseSubmitMessage(trim_message, recvMsg)) {
+            P.recvMsgQueue.push(*recvMsg);
+            printf("Push recvMsg to queue\n");
+        }
+
+    } else if(message_type == "aggSign") {
+        message::SubmitAggSign* recvAggSign;
+        if (ParseAggSignMessage(trim_message, recvAggSign)) {
+            P.recvAggSignQueue.push(*recvAggSign);
+            printf("Push recvAggSign to queue\n");
+        }
+
+
+    } else {
+        // couldn't parse
+    }
+
+    return;
+
 }
 
 void StartServer(int serverPortNumber) {
@@ -79,7 +133,7 @@ void StartServer(int serverPortNumber) {
     server.OnJoin = [&serverPortNumber](TCPConnection::pointer server) {
         userCount++;
         if (userCount == TOTAL_USER)    postFlag = 1;
-        printf("User has joined the server [%d]\n", serverPortNumber);
+//        printf("User has joined the server [%d]\n", serverPortNumber);
 //        std::cout << "User has joined the server : " << server->Getusername() << std::endl;
     };
 
@@ -98,140 +152,47 @@ void StartServer(int serverPortNumber) {
 
 int main(int argc, char *argv[])
 {
-    if (argc < 3)                     /* Test for correct number of parameters */
+    /* Test for correct number of parameters */
+    if (argc < 3)
     {
         exit(1);
     }
 
-    bool closeFlag = 0;
     int portNumber = atoi(argv[1]);
     int submitValue = atoi(argv[2]);
     int peersPortNumber[NUMBER_OF_PROCESSES] = {9000, 9001, 9002, 9003};
+    int pid = portNumber - 9000;
 
-    accountable_confirmer::Process P;
-
-    // Start Server
+    /* Start Server */
     thread s(StartServer, portNumber);
-
-    // Start client
+    usleep(1000);
+    /* Start client */
     TCPClient c0("localhost", peersPortNumber[0]);
-    c0.OnMessage = [&P](const std::string& message) {
-        // store them in process
-
-        int start = 0; int end = (int)message.find("::");
-        string message_type(message.substr(start, end));
-        printf("Recv Message type = %s\n", message_type.c_str());
-
-        string trim_message = message.substr(end+2, message.length());
-
-        if (message_type == "submit") {
-            message::SubmitMsg* recvMsg;
-            ParseSubmitMessage(trim_message, recvMsg);
-            printf("Submitpid = %d, pid = %d\n", recvMsg->submitPid, P.id);
-            accountable_confirmer::SubmitMsgVerify(&P.ac, recvMsg);
-//            P.recvMsgQueue.push(*recvMsg);
-
-        } else if(message_type == "aggSign") {
-            message::SubmitAggSignMsg* recvAggSign;
-            ParseAggSignMessage(trim_message, recvAggSign);
-            P.recvAggSignQueue.push(*recvAggSign);
-        } else {
-            // couldn't parse
-        }
-
-
-    };
+    c0.OnMessage = ParseMessage;
     thread t0( [&c0] () { printf("run c0\n"); c0.Run();});
-    P.clientThread.push_back(move(t0));
+    P.clientThread.emplace_back(move(t0));
 
     TCPClient c1("localhost", peersPortNumber[1]);
-    c1.OnMessage = [&P](const std::string& message) {
-        // store them in process
-
-        int start = 0; int end = (int)message.find("::");
-        string message_type(message.substr(start, end));
-        printf("Recv Message type = %s\n", message_type.c_str());
-
-        string trim_message = message.substr(end+2, message.length());
-
-        if (message_type == "submit") {
-            message::SubmitMsg* recvMsg;
-            ParseSubmitMessage(trim_message, recvMsg);
-            printf("Submitpid = %d, pid = %d\n", recvMsg->submitPid, P.id);
-            accountable_confirmer::SubmitMsgVerify(&P.ac, recvMsg);
-//            P.recvMsgQueue.push(*recvMsg);
-
-        } else if(message_type == "aggSign") {
-            message::SubmitAggSignMsg* recvAggSign;
-            ParseAggSignMessage(trim_message, recvAggSign);
-            P.recvAggSignQueue.push(*recvAggSign);
-        } else {
-            // couldn't parse
-        }
-
-    };
+    c1.OnMessage = ParseMessage;
     thread t1( [&c1] () { printf("run c1\n");c1.Run();});
-    P.clientThread.push_back(move(t1));
+    P.clientThread.emplace_back(move(t1));
 
     TCPClient c2("localhost", peersPortNumber[2]);
-    c2.OnMessage = [&P](const std::string& message) {
-        // store them in process
-
-        int start = 0; int end = (int)message.find("::");
-        string message_type(message.substr(start, end));
-        printf("Recv Message type = %s\n", message_type.c_str());
-
-        string trim_message = message.substr(end+2, message.length());
-
-        if (message_type == "submit") {
-            message::SubmitMsg* recvMsg;
-            ParseSubmitMessage(trim_message, recvMsg);
-            printf("Submitpid = %d, pid = %d\n", recvMsg->submitPid, P.id);
-            accountable_confirmer::SubmitMsgVerify(&P.ac, recvMsg);
-//            P.recvMsgQueue.push(*recvMsg);
-
-        } else if(message_type == "aggSign") {
-            message::SubmitAggSignMsg* recvAggSign;
-            ParseAggSignMessage(trim_message, recvAggSign);
-            P.recvAggSignQueue.push(*recvAggSign);
-        } else {
-            // couldn't parse
-        }
-    };
+    c2.OnMessage = ParseMessage;
     thread t2( [&c2] () { printf("run c2\n"); c2.Run();});
-    P.clientThread.push_back(move(t2));
+    P.clientThread.emplace_back(move(t2));
 
     TCPClient c3("localhost", peersPortNumber[3]);
-    c2.OnMessage = [&P](const std::string& message) {
-        // store them in process
-
-        int start = 0; int end = (int)message.find("::");
-        string message_type(message.substr(start, end));
-        printf("Recv Message type = %s\n", message_type.c_str());
-
-        string trim_message = message.substr(end+2, message.length());
-
-        if (message_type == "submit") {
-            message::SubmitMsg* recvMsg;
-            ParseSubmitMessage(trim_message, recvMsg);
-            printf("Submitpid = %d, pid = %d\n", recvMsg->submitPid, P.id);
-            accountable_confirmer::SubmitMsgVerify(&P.ac, recvMsg);
-            //P.recvMsgQueue.push(*recvMsg);
-
-        } else if(message_type == "aggSign") {
-            message::SubmitAggSignMsg* recvAggSign;
-            ParseAggSignMessage(trim_message, recvAggSign);
-            P.recvAggSignQueue.push(*recvAggSign);
-        } else {
-            // couldn't parse
-        }
-    };
+    c3.OnMessage = ParseMessage;
     thread t3( [&c3] () { printf("run c3\n"); c3.Run();});
-    P.clientThread.push_back(move(t3));
+    P.clientThread.emplace_back(move(t3));
 
 
-    accountable_confirmer::InitProcess(&P, portNumber, peersPortNumber);
-    accountable_confirmer::Submit(&P, submitValue);
+
+    accountable_confirmer::InitAccountableConfirmer(&AC);
+    accountable_confirmer::InitPeer(&P, &AC, pid, portNumber);
+
+    accountable_confirmer::Submit(&P, &AC, submitValue);
     string submit_message((char*)P.serializeMsg.data());
 //    string submit_message(reinterpret_cast<const char*>(P.serializeMsg.data()), P.serializeMsg.size());
     submit_message += '\n';
@@ -240,56 +201,32 @@ int main(int argc, char *argv[])
 
     switch (portNumber) {
         case 9000:
+            printf("[0] post\n");
             c0.Post(submit_message);
         case 9001:
+            printf("[1] post\n");
             c1.Post(submit_message);
         case 9002:
+            printf("[2] post\n");
             c2.Post(submit_message);
         case 9003:
+            printf("[3] post\n");
             c3.Post(submit_message);
     }
 
-    usleep(10);
-
-//    for (int i = 0; i < 10; i++){
-//        printf("check recvmsg...\n");
-//        if (accountable_confirmer::CheckRecvMsg(&P)) {
-//            break;
-//        } else {
 //
-//        }
-//    }
-//    printf("[%d] received enough submit\n", P.id);
-//    closeFlag = 1;
+//    c0.Stop(); c1.Stop(); c2.Stop(); c3.Stop();
+//    accountable_confirmer::Close(&P);
+//    s.join();
 
-    string aggsign_message((char*)P.serializeAggSign.data());
-//    string submit_message(reinterpret_cast<const char*>(P.serializeMsg.data()), P.serializeMsg.size());
-    aggsign_message += '\n';
 
-//    int detect = 0;
-//    if(accountable_confirmer::CheckRecvMsg(&P)) {
-//        detect = accountable_confirmer::CheckRecvAggSignature(&P);
-//    }
-//    while(!accountable_confirmer::CheckRecvMsg(&P)) {
-//        printf("=================Keep Checking the RecvMsg===================\n");
+//    if(closeFlag) {
+//        c0.Stop(); c1.Stop(); c2.Stop(); c3.Stop();
+//        accountable_confirmer::Close(&P);
+//        s.join();
+//        runRecv.join();
 //    }
 
-//    if(detect) {
-//        printf("====================Detect Faulty====================\n");
-//    } else {
-//        printf("====================No Faulty====================\n");
-//    }
 
-    usleep(10);
-    closeFlag = 1;
-
-    /*
-    if(closeFlag) {
-        c0.Stop(); c1.Stop(); c2.Stop(); c3.Stop();
-        accountable_confirmer::Close(&P);
-        s.join();
-    }
-
-    */
     return 0;
 }

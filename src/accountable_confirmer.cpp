@@ -156,23 +156,24 @@ namespace accountable_confirmer {
 
     }
 
-    int CheckRecvMsg(struct Peer* p, struct AccountableConfirmer* ac){
+    void CheckRecvMsg(struct Peer* p, struct AccountableConfirmer* ac){
+        printf("[CheckRecvMsg] Start\n");
+        while (!p->recvMsgFlag) {
+            int size = p->recvMsgQueue.size();
+            if (size != 0) {
+                printf("[CheckRecvMsg] [%d] Received queue size = %d\n",p->id, size);
+                for (int i = 0; i < size; i++) {
+                    SubmitMsgVerify(ac, &p->recvMsgQueue.front());
+                    p->recvMsgQueue.pop();
+                }
+            }
 
-        int size = p->recvMsgQueue.size();
-        printf("[CheckRecvMsg] [%d] Received queue size = %d\n",p->id, size);
-        for (int i = 0; i < size; i++) {
-            SubmitMsgVerify(ac, &p->recvMsgQueue.front());
-            p->recvMsgQueue.pop();
-        }
 
-
-        if (ac->from[p->id].size() >= NUMBER_OF_PROCESSES - NUMBER_OF_FAULTY_PROCESSES) {
-            printf("[CheckRecvMsg] [%d] Receiving enough messages -> progress to Confirm phase\n", p->id);
-            Confirm(p, ac);
-            return 1;
-        } else {
-            printf("[CheckRecvMsg] [%d] Not receiving enough messages\n", p->id);
-            return 0;
+            if (ac->from[p->id].size() >= NUMBER_OF_PROCESSES - NUMBER_OF_FAULTY_PROCESSES) {
+                p->recvMsgFlag = true;
+                printf("[CheckRecvMsg] [%d] Receiving enough messages -> progress to Confirm phase\n", p->id);
+                Confirm(p, ac);
+            }
         }
 
     }
@@ -208,9 +209,10 @@ namespace accountable_confirmer {
 
     }
 
-    void InitPeer(struct Peer* p, int id, int portNumber) {
+    void InitPeer(struct Peer* p, struct AccountableConfirmer* ac, int id, int portNumber) {
 
         p->id = id;
+
 
         /* Generate blsPublicKey and blsSecretKey for SubmitMsg Enc/Dec */
         accountable_confirmer_bls::Init();
@@ -219,6 +221,12 @@ namespace accountable_confirmer {
         /* Clear the receiving queue */
         while (!p->recvMsgQueue.empty()) p->recvMsgQueue.pop();
         while (!p->recvAggSignQueue.empty()) p->recvAggSignQueue.pop();
+
+        p->recvMsgFlag = false;
+        p->recvAggSignFlag = false;
+
+        thread runRecv(CheckRecvMsg, p, ac);
+        p->recvThread.emplace_back(move(runRecv));
 
         printf("[InitPeer] [%d] Init, portNumber = %d\n", p->id, portNumber);
     }
@@ -282,7 +290,12 @@ namespace accountable_confirmer {
     }
 
     void Close(struct Peer* p) {
+        for (int i = 0; i < p->recvThread.size(); i++) {
+            if (p->recvThread[i].joinable()) {
+                p->recvThread[i].join();
+            }
 
+        }
         for (int i = 0; i < NUMBER_OF_PROCESSES; i++) {
             if (p->clientThread[i].joinable()) {
                 printf("[%d] join thread %d\n",p->id, i);
