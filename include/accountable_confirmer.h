@@ -39,9 +39,12 @@ namespace accountable_confirmer {
     struct AccountableConfirmer {
         int value[NUMBER_OF_PROCESSES];
         bool confirm[NUMBER_OF_PROCESSES];
-        vector<int> from[NUMBER_OF_PROCESSES];
-        vector<message::SubmitMsg> partialSignature[NUMBER_OF_PROCESSES];
-        vector<message::SubmitAggSign> obtainedAggSignature[NUMBER_OF_PROCESSES];
+//        vector<int> from[NUMBER_OF_PROCESSES];
+//        vector<message::SubmitMsg> partialSignature[NUMBER_OF_PROCESSES];
+//        vector<message::SubmitAggSign> obtainedAggSignature[NUMBER_OF_PROCESSES];
+        vector<int> from;
+        vector<message::SubmitMsg> partialSignature;
+        vector<message::SubmitAggSign> obtainedAggSignature;
     };
 
     struct Peer {
@@ -51,6 +54,7 @@ namespace accountable_confirmer {
         vector<byte> serializeMsg;
         message::SubmitAggSign aggSignMsg;
         vector<byte> serializeAggSign;
+        queue<string> rawMessage;
         queue<message::SubmitMsg> recvMsgQueue;
         queue<message::SubmitAggSign> recvAggSignQueue;
 
@@ -71,7 +75,7 @@ namespace accountable_confirmer {
     int ShareVerify(struct message::SubmitMsg* recvMsg);
 
     /* Verify the whole submit message */
-    void SubmitMsgVerify(struct AccountableConfirmer* ac, struct message::SubmitMsg* recvMsg);
+    void SubmitMsgVerify(struct Peer* p, struct AccountableConfirmer* ac, struct message::SubmitMsg* recvMsg);
 
     /* Combine the received partial signatures into aggregate signature */
     void GenerateAggSignature(struct Peer* p, struct AccountableConfirmer* ac);
@@ -83,6 +87,12 @@ namespace accountable_confirmer {
     void BroadcastSubmitMessage(struct Peer* p);
 
     void BroadcastAggregateSignature(struct Peer* p);
+
+    void ParseMessage(struct Peer* p, struct AccountableConfirmer* ac);
+
+    void ParseSubmitMessage(struct Peer* p, struct AccountableConfirmer* ac, string message);
+
+    void ParseAggSignature(struct Peer* p, struct AccountableConfirmer* ac, string message);
 
     /* Init the AccountableConfirmer */
     void InitAccountableConfirmer(struct AccountableConfirmer* ac);

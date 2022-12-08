@@ -20,7 +20,7 @@ using namespace std;
 
 int userCount = 0;
 int postFlag = 0;
-queue<string> messageQueue;
+
 accountable_confirmer::Peer P;
 accountable_confirmer::AccountableConfirmer AC;
 
@@ -100,7 +100,6 @@ bool ParseSubmitMessage(string message, message::SubmitMsg* recvMsg) {
 }
 
 void ParseMessage(const std::string& message) {
-    messageQueue.push(message);
     int start = 0; int end = (int)message.find("::");
     string message_type(message.substr(start, end));
     string trim_message = message.substr(end+2, message.length());
@@ -138,7 +137,7 @@ void StartServer(int serverPortNumber) {
     server.OnJoin = [&serverPortNumber](TCPConnection::pointer server) {
         userCount++;
         if (userCount == TOTAL_USER)    postFlag = 1;
-        printf("User has joined the server [%d]\n", serverPortNumber);
+//        printf("User has joined the server [%d]\n", serverPortNumber);
 //        std::cout << "User has joined the server : " << server->Getusername() << std::endl;
     };
 
@@ -169,68 +168,84 @@ int main(int argc, char *argv[])
     int submitValue = atoi(argv[2]);
     int peersPortNumber[NUMBER_OF_PROCESSES] = {9000, 9001, 9002, 9003};
     int pid = portNumber - 9000;
-    while (!messageQueue.empty()) {
-        messageQueue.pop();
-    }
+
     /* Start Server */
     thread s(StartServer, portNumber);
     usleep(100000);
     /* Start client */
     TCPClient c0("localhost", peersPortNumber[0]);
-    c0.OnMessage = ParseMessage;
+//    c0.OnMessage = ParseMessage;
+    c0.OnMessage = [](const std::string& message) {
+//        printf("[c0 OnMessage] push message to P.rawMessage\n");
+        P.rawMessage.push(message);
+    };
     thread t0( [&c0] () { printf("run c0\n"); c0.Run(); for(;;);});
     P.clientThread.emplace_back(move(t0));
 
     TCPClient c1("localhost", peersPortNumber[1]);
-    c1.OnMessage = ParseMessage;
+//    c1.OnMessage = ParseMessage;
+    c1.OnMessage = [](const std::string& message) {
+//        printf("[c1 OnMessage] push message to P.rawMessage\n");
+        P.rawMessage.push(message);
+    };
     thread t1( [&c1] () { printf("run c1\n");c1.Run(); for(;;);});
     P.clientThread.emplace_back(move(t1));
 
     TCPClient c2("localhost", peersPortNumber[2]);
-    c2.OnMessage = ParseMessage;
+//    c2.OnMessage = ParseMessage;
+    c2.OnMessage = [](const std::string& message) {
+//        printf("[c2 OnMessage] push message to P.rawMessage\n");
+        P.rawMessage.push(message);
+    };
     thread t2( [&c2] () { printf("run c2\n"); c2.Run(); for(;;);});
     P.clientThread.emplace_back(move(t2));
 
     TCPClient c3("localhost", peersPortNumber[3]);
-    c3.OnMessage = ParseMessage;
+//    c3.OnMessage = ParseMessage;
+    c3.OnMessage = [](const std::string& message) {
+//        printf("[c3 OnMessage] push message to P.rawMessage\n");
+        P.rawMessage.push(message);
+    };
     thread t3( [&c3] () { printf("run c3\n"); c3.Run(); for(;;);});
     P.clientThread.emplace_back(move(t3));
-
-
 
     accountable_confirmer::InitAccountableConfirmer(&AC);
     accountable_confirmer::InitPeer(&P, &AC, pid, portNumber);
 
     accountable_confirmer::Submit(&P, &AC, submitValue);
-    string submit_message((char*)P.serializeMsg.data());
-//    string submit_message(reinterpret_cast<const char*>(P.serializeMsg.data()), P.serializeMsg.size());
+    usleep(10000);
+//    string submit_message((char*)P.serializeMsg.data());
+    string submit_message(reinterpret_cast<const char*>(P.serializeMsg.data()), P.serializeMsg.size());
     submit_message += '\n';
     usleep(1000000);
 
-    for(int i = 0; i < 3; i++) {
-        switch (portNumber) {
-            case 9000:
-                printf("[0] post\n");
-                c0.Post(submit_message);
-                break;
-            case 9001:
-                printf("[1] post\n");
-                c1.Post(submit_message);
-                break;
-            case 9002:
-                printf("[2] post\n");
-                c2.Post(submit_message);
-                break;
-            case 9003:
-                printf("[3] post\n");
-                c3.Post(submit_message);
-                break;
-        }
+
+    switch (portNumber) {
+        case 9000:
+            printf("[0] post\n");
+            c0.Post(submit_message);
+            break;
+        case 9001:
+            printf("[1] post\n");
+            c1.Post(submit_message);
+            break;
+        case 9002:
+            printf("[2] post\n");
+            c2.Post(submit_message);
+            break;
+        case 9003:
+            printf("[3] post\n");
+            c3.Post(submit_message);
+            break;
     }
 
 
 
+
+
+
     usleep(100000000);
+    printf("======Wake up from sleep======\n");
     c0.Stop(); c1.Stop(); c2.Stop(); c3.Stop();
     accountable_confirmer::Close(&P);
     s.join();

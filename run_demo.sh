@@ -7,13 +7,10 @@ PORT_ONE=9001
 PORT_TWO=9002
 PORT_THREE=9003
 
-echo "starting replica 0"
+
 ./accountable-confirmer $PORT_ZERO $CORRECT_VALUE &
-echo "starting replica 1"
 ./accountable-confirmer $PORT_ONE $CORRECT_VALUE &
-echo "starting replica 2"
-./accountable-confirmer $PORT_TWO $WRONG_VALUE &
-echo "starting replica 3"
+./accountable-confirmer $PORT_TWO $CORRECT_VALUE &
 ./accountable-confirmer $PORT_THREE $WRONG_VALUE &
 
 
