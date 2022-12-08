@@ -3,6 +3,7 @@
 #include <fstream>
 #include <boost/format.hpp>
 #include <queue>
+#include <charconv>
 
 /* Internal Library */
 #include "accountable_confirmer.h"
@@ -14,7 +15,7 @@
 using namespace std;
 
 namespace accountable_confirmer {
-
+    int thisPid;
     /* Return 1 if found, Return 0 if not found */
     int FindPidInVector(vector<int> pidVector, int elem){
         vector<int>::iterator it = find(pidVector.begin(), pidVector.end(), elem);
@@ -24,25 +25,32 @@ namespace accountable_confirmer {
     }
 
     void ShareSign(struct Peer* p) {
-        char valueToSign[MAX_DIGIT + sizeof(char)];
-        sprintf(valueToSign, "%d", p->msg.value);
+//        char valueToSign[MAX_DIGIT + sizeof(char)];
+//        sprintf(valueToSign, "%d", p->msg.value);
+//        char valueToSign[MAX_DIGIT + sizeof(char)];
+//
+//        std::to_chars(valueToSign, valueToSign + MAX_DIGIT, p->msg.value);
+
+        auto msg = to_string(p->msg.value);
 
         /* Create a partial signature for the submit value (p->msg.value) */
-        accountable_confirmer_bls::Sign(&p->keyPair, &p->msg.sig, valueToSign);
+        accountable_confirmer_bls::Sign(&p->keyPair, &p->msg.sig, msg.c_str());
     }
 
     /* Return 1 if it is valid, Return 0 if not valid */
     int ShareVerify(struct message::SubmitMsg* recvMsg) {
 
-        char valueSigned[MAX_DIGIT + sizeof(char)];
-        sprintf(valueSigned, "%d", recvMsg->value);
+//        char valueSigned[MAX_DIGIT + sizeof(char)];
+//        sprintf(valueSigned, "%d", recvMsg->value);
 
+        auto msg = to_string(recvMsg->value);
+        usleep(1000);
         /* Verify the partial signature of the submit value */
-        if (accountable_confirmer_bls::Verify(&recvMsg->pub, &recvMsg->sig, valueSigned)) {
-            printf("[ShareVerify] Successful\n");
+        if (accountable_confirmer_bls::Verify(&recvMsg->pub, &recvMsg->sig, msg.c_str())) {
+            printf("[ShareVerify] [%d] Successful, for pid = %d\n", thisPid, recvMsg->pid);
             return 1;
         } else {
-            printf("[ShareVerify] Fail\n");
+            printf("[ShareVerify] [%d] Fail, for pid = %d\n", thisPid, recvMsg->pid);
             return 0;
         }
 
@@ -56,9 +64,9 @@ namespace accountable_confirmer {
         /* Authenticate the whole submit message */
         if (ShareVerify(recvMsg)) {
             if (ac->value[id] == recvMsg->value) {
-                printf("[SubmitMsgVerify] Recv value of [%d] is equal to it's submit value\n", id);
+                printf("[SubmitMsgVerify] Recv value(%d) of [%d] is equal to it's submit value(%d)\n",recvMsg->value, id, ac->value[id]);
                 if (!FindPidInVector(ac->from[id], id)) {
-                    printf("[SubmitMsgVerify] peer [%d] hasn't sent message\n", id);
+                    printf("[SubmitMsgVerify] update accountable confirmer\n");
 
                     /* This recvMsg is verified, need to store it in the AccountableConfirmer */
                     ac->from[id].push_back(id);
@@ -67,7 +75,7 @@ namespace accountable_confirmer {
                     printf("[SubmitMsgNotVerify] peer [%d] has already sent message\n", recvMsg->pid);
                 }
             } else {
-                printf("[SubmitMsgNotVerify] Recv value of [%d] is not equal to it's submit value\n", recvMsg->pid);
+                printf("[SubmitMsgNotVerify] Recv value(%d) of [%d] is not equal to it's submit value(%d)\n",recvMsg->value, id, ac->value[id]);
             }
         }
 
@@ -157,7 +165,7 @@ namespace accountable_confirmer {
     }
 
     void CheckRecvMsg(struct Peer* p, struct AccountableConfirmer* ac){
-        printf("[CheckRecvMsg] Start\n");
+        printf("[CheckRecvMsg] Start recvMsgFlag = %d\n", p->recvMsgFlag);
         while (!p->recvMsgFlag) {
             int size = p->recvMsgQueue.size();
             if (size != 0) {
@@ -166,6 +174,10 @@ namespace accountable_confirmer {
                     SubmitMsgVerify(ac, &p->recvMsgQueue.front());
                     p->recvMsgQueue.pop();
                 }
+            }
+
+            if (ac->from[p->id].size() > 0) {
+                printf("[CheckRecvMsg] AC->from[%d] size = %lu\n", p->id, ac->from[p->id].size());
             }
 
 
@@ -198,9 +210,13 @@ namespace accountable_confirmer {
 
     /* Main functionality */
     void InitAccountableConfirmer(struct AccountableConfirmer* ac) {
+        ac->value[0] = 334949;
+        ac->value[1] = 334949;
+        ac->value[2] = 334949;
+        ac->value[3] = 666666;
 
         for (int i = 0; i < NUMBER_OF_PROCESSES; i++) {
-            ac->value[i] = 0;
+//            ac->value[i] = 0;
             ac->confirm[i] = false;
             ac->from[i].clear();
             ac->partialSignature[i].clear();
@@ -212,7 +228,7 @@ namespace accountable_confirmer {
     void InitPeer(struct Peer* p, struct AccountableConfirmer* ac, int id, int portNumber) {
 
         p->id = id;
-
+        thisPid = id;
 
         /* Generate blsPublicKey and blsSecretKey for SubmitMsg Enc/Dec */
         accountable_confirmer_bls::Init();

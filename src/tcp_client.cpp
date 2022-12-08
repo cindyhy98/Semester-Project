@@ -7,7 +7,7 @@ using net_error = boost::system::error_code;
 //TCPClient::TCPClient(io::io_context& ioContext) : _ioContext(ioContext), _socket(_ioContext){
 //};
 
-TCPClient::TCPClient(const std::string &address, int port) : _socket(_ioContext){
+TCPClient::TCPClient(const std::string &address, int port) : _socket(_ioContext), _workGuard(_ioContext.get_executor()){
     tcp::resolver resolver(_ioContext);
     _endpoints = resolver.resolve(address, std::to_string(port));
 }
@@ -20,6 +20,8 @@ void TCPClient::Init(const std::string &address, int port) {
 }
 
 void TCPClient::Run() {
+
+
     // connect to the endpoint
     io::async_connect(_socket, _endpoints, [this](net_error ec, tcp::endpoint ep) {
         if (!ec) {
@@ -65,15 +67,16 @@ void TCPClient::asyncRead() {
 void TCPClient::onRead(net_error ec, size_t bytesTransferred) {
     if (ec) {
         // close the socket when there is an error
-        printf("error occurs in client read\n");
-//        Stop();
+
+//        std::cout << "error in client read = " << ec.what() <<std::endl;
+        Stop();
         return;
     }
 
     std::stringstream message;
     // .rdbuf() is going to consume the bytes on the buffer
     message  << std::istream(&_streamBuf).rdbuf();
-
+    _streamBuf.consume(bytesTransferred);
     OnMessage(message.str());
     asyncRead();
 }

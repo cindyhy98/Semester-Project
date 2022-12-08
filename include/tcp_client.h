@@ -11,6 +11,7 @@ namespace io = boost::asio;
 using boost::asio::ip::tcp;
 using net_error = boost::system::error_code;
 using MessageHandler = std::function<void(std::string)>;
+using work_guard_type = io::executor_work_guard<io::io_context::executor_type>;
 
 class TCPClient {
 
@@ -47,10 +48,11 @@ public:
     MessageHandler OnMessage;
 private:
     io::io_context _ioContext;
+    work_guard_type _workGuard;
     tcp::socket _socket ;
     tcp::resolver::results_type _endpoints;
     io::streambuf _streamBuf{65536};
-//    io::streambuf& _streamBuf;
+
     std::queue<std::string> _outgoingMessage {};
 
 };

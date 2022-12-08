@@ -33,17 +33,15 @@ namespace accountable_confirmer_bls {
     }
 
 
-    void Sign(Key* k, blsSignature* sig, char msg[]) {
-        const size_t msgSize = strlen(msg);
+    void Sign(Key* k, blsSignature* sig, const char* msg) {
 
-        blsSign(sig, &k->sec, msg, msgSize);
+        blsSign(sig, &k->sec, msg, strlen(msg));
 //        printf("[accountable_confirmer_bls::Sign] Make a Signature\n");
     }
 
     /* Return 1 if it is valid else 0 */
-    int Verify(blsPublicKey* pub, blsSignature* sig, char msg[]){
-        const size_t msgSize = strlen(msg);
-        return blsVerify(sig, pub, msg, msgSize);
+    int Verify(blsPublicKey* pub, blsSignature* sig, const char* msg){
+        return blsVerify(sig, pub, msg, strlen(msg));
     }
 
     void AggSign(blsSignature *aggSig, const blsSignature *sigVec, mclSize n) {

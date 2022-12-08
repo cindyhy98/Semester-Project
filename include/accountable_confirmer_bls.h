@@ -24,10 +24,10 @@ namespace accountable_confirmer_bls {
 
 //    void SerializeSignature(blsSignature sig);
 
-    void Sign(Key* k, blsSignature* sig, char msg[]);
+    void Sign(Key* k, blsSignature* sig, const char* msg);
 
     /* return 1 if it is valid else 0 */
-    int Verify(blsPublicKey* pub, blsSignature* sig, char msg[]);
+    int Verify(blsPublicKey* pub, blsSignature* sig, const char* msg);
 
     void AggSign(blsSignature *aggSig, const blsSignature *sigVec, mclSize n);
 
