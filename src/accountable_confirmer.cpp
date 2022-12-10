@@ -8,16 +8,12 @@
 /* Internal Library */
 #include "accountable_confirmer.h"
 
-#define MAX_DIGIT 15 // biggest int is 2147482647
-
-#define BUFFER_SIZE 4096
-
 using namespace std;
 
 namespace accountable_confirmer {
-    int thisPid;
+
     /* Return 1 if found, Return 0 if not found */
-    int FindPidInVector(vector<int> pidVector, int elem){
+    int FindPid(vector<int> pidVector, int elem){
         vector<int>::iterator it = find(pidVector.begin(), pidVector.end(), elem);
         if (it != pidVector.end())   return 1;
         else    return 0;
@@ -25,14 +21,8 @@ namespace accountable_confirmer {
     }
 
     void ShareSign(struct Peer* p) {
-//        char valueToSign[MAX_DIGIT + sizeof(char)];
-//        sprintf(valueToSign, "%d", p->msg.value);
-//        char valueToSign[MAX_DIGIT + sizeof(char)];
-//
-//        std::to_chars(valueToSign, valueToSign + MAX_DIGIT, p->msg.value);
 
         auto msg = to_string(p->msg.value);
-
         /* Create a partial signature for the submit value (p->msg.value) */
         accountable_confirmer_bls::Sign(&p->keyPair, &p->msg.sig, msg.c_str());
     }
@@ -40,43 +30,39 @@ namespace accountable_confirmer {
     /* Return 1 if it is valid, Return 0 if not valid */
     int ShareVerify(struct message::SubmitMsg* recvMsg) {
 
-//        char valueSigned[MAX_DIGIT + sizeof(char)];
-//        sprintf(valueSigned, "%d", recvMsg->value);
-
         auto msg = to_string(recvMsg->value);
-        usleep(1000);
+
         /* Verify the partial signature of the submit value */
         if (accountable_confirmer_bls::Verify(&recvMsg->pub, &recvMsg->sig, msg.c_str())) {
-            printf("[ShareVerify] [%d] Successful, for pid = %d\n", thisPid, recvMsg->pid);
+            printf("[ShareVerify] Successful\n");
             return 1;
         } else {
-            printf("[ShareVerify] [%d] Fail, for pid = %d\n", thisPid, recvMsg->pid);
+            printf("[ShareVerify] Fail\n");
             return 0;
         }
 
     }
 
-    /* Return 1 if verified, Return 0 if not verified */
-    void SubmitMsgVerify(struct Peer* p, struct AccountableConfirmer* ac, struct message::SubmitMsg* recvMsg) {
+    void SubmitMsgVerify(struct Peer* p, struct message::SubmitMsg* recvMsg) {
 
         int id = recvMsg->pid;
 
         /* Authenticate the whole submit message */
         if (ShareVerify(recvMsg)) {
-            if (ac->value[id] == recvMsg->value) {
-                printf("[SubmitMsgVerify] Recv value(%d) of [%d] is equal to it's submit value(%d)\n",recvMsg->value, id, ac->value[id]);
-                if (!FindPidInVector(ac->from, id)) {
+            if (p->ac.value == recvMsg->value) {
+                printf("[SubmitMsgVerify] Recv value(%d) of [%d] is equal to it's submit value\n",recvMsg->value, id);
+                if (!FindPid(p->ac.from, id)) {
                     printf("[SubmitMsgVerify] update accountable confirmer\n");
 
                     /* This recvMsg is verified, need to store it in the AccountableConfirmer */
-                    ac->from.push_back(id);
-                    ac->partialSignature.push_back(*recvMsg);
-                    CheckRecvMsg(p, ac);
+                    p->ac.from.push_back(id);
+                    p->ac.partialSignature.push_back(*recvMsg);
+                    CheckRecvMsg(p);
                 } else {
                     printf("[SubmitMsgNotVerify] peer [%d] has already sent message\n", recvMsg->pid);
                 }
             } else {
-                printf("[SubmitMsgNotVerify] Recv value(%d) of [%d] is not equal to it's submit value(%d)\n",recvMsg->value, id, ac->value[id]);
+                printf("[SubmitMsgNotVerify] Recv value(%d) of [%d] is not equal to it's submit value(%d)\n",recvMsg->value, id, p->ac.value);
             }
         }
 
@@ -89,31 +75,34 @@ namespace accountable_confirmer {
 //    }
 
     /* Combine the received partial signatures into a aggregate signature */
-    void GenerateAggSignature(struct Peer* p, struct AccountableConfirmer* ac) {
+    void GenerateAggSignature(struct Peer* p) {
+
         int submitValue;
         vector<blsSignature> sigVec;
         vector<blsPublicKey> pubVec;
 
-        for(auto & elem : ac->partialSignature){
+        for(auto & elem : p->ac.partialSignature){
             sigVec.push_back(elem.sig);
             pubVec.push_back(elem.pub);
             submitValue = elem.value;
         }
 
-        char valueToSign[MAX_DIGIT + sizeof(char)];
-        sprintf(valueToSign, "%d", submitValue);
-        const size_t msgSize = strlen(valueToSign);
+        auto msg = to_string(submitValue).c_str();
+//        char valueToSign[MAX_DIGIT + sizeof(char)];
+//        sprintf(valueToSign, "%d", submitValue);
+//        const size_t msgSize = strlen(valueToSign);
 
         blsSignature aggSig;
 
         /* Create an aggregate signature for the collected partial signatures */
-        accountable_confirmer_bls::AggSign(&aggSig, &sigVec[0], msgSize);
+        accountable_confirmer_bls::AggSign(&aggSig, &sigVec[0], strlen(msg));
 
         p->aggSignMsg = {.pid = p->id, .value = submitValue, .aggSig = aggSig};
     }
 
-    void BroadcastSubmitMessage(struct Peer* p) {
-        printf("[BroadcastSubmitMessage] [%d] broadcast value %d to everyone\n",p->id, p->msg.value);
+    void BroadcastSubmitMessage(struct Peer* p, int to) {
+        /* Need to clear the serializeMsg everytime before sending */
+        p->serializeMsg.clear();
 
         /* Serialize blsSignature */
         byte bufSig[128];
@@ -127,10 +116,9 @@ namespace accountable_confirmer {
         vector<byte> vPub; vPub.reserve(pub_sz);
         for (int i = 0; i < pub_sz; i++)  vPub.push_back(bufPub[i]);
 
-
         /* Serialize Submit message */
         string message_type = "submit";
-        auto pre = (boost::format("%1%::%2%::%3%::%4%::") % message_type % p->msg.pid % p->msg.value % sig_sz ).str();
+        auto pre = (boost::format("%1%::%2%::%3%::%4%::%5%::") % message_type % to % p->msg.pid % p->msg.value % sig_sz ).str();
         for (char i : pre) p->serializeMsg.push_back(byte(i));
         p->serializeMsg.insert(p->serializeMsg.end(), vSig.begin(), vSig.end());
         auto mid = (boost::format("::%1%::") % pub_sz ).str();
@@ -138,13 +126,12 @@ namespace accountable_confirmer {
         p->serializeMsg.insert(p->serializeMsg.end(), vPub.begin(), vPub.end());
         auto end = (boost::format("::") ).str();
         for (char i : end) p->serializeMsg.push_back(byte(i));
-        // printf("[BroadcastSubmitMessage] Sent byte = %lu\n", p->serializeMsg.size());
 
-        // p->clients[broadcastIndex]->Post(message);
     }
 
-    void BroadcastAggregateSignature(struct Peer* p) {
-        printf("[BroadcastAggSignature] [%d] broadcast AggSignature to everyone\n", p->id);
+    void BroadcastAggregateSignature(struct Peer* p, int to) {
+        /* Need to clear the serializeAggSign everytime before sending */
+        p->serializeAggSign.clear();
 
         /* Serialize blsSignature (Aggregate Signature) */
         byte bufSig[128];
@@ -154,30 +141,33 @@ namespace accountable_confirmer {
 
         /* Serialize SubmitAggSign */
         string message_type = "aggSign";
-        auto pre = (boost::format("%1%::%2%::%3%::%4%::") % message_type % p->aggSignMsg.pid % p->aggSignMsg.value % sig_sz ).str();
+        auto pre = (boost::format("%1%::%2%::%3%::%4%::%5%::") % message_type % to % p->aggSignMsg.pid % p->aggSignMsg.value % sig_sz ).str();
         for (char i : pre) p->serializeAggSign.push_back(byte(i));
         p->serializeAggSign.insert(p->serializeAggSign.end(), vSig.begin(), vSig.end());
         auto end = (boost::format("::") ).str();
         for (char i : end) p->serializeAggSign.push_back(byte(i));
-        // printf("[BroadcastAggSignature] Sent byte = %lu\n", p->serializeAggSign.size());
-
-        // Send the message
 
     }
 
-    void ParseAggSignature(struct Peer* p, struct AccountableConfirmer* ac, string message) {
-        message::SubmitAggSign* recvAggSign;
+    void ParseAggSignature(struct Peer* p, string message) {
+        message::SubmitAggSign* recvAggSign = new(message::SubmitAggSign);
         int start = 0; int end = (int)message.find("::");
-        string pid_str(message.substr(start, end));
-        recvAggSign->pid = atoi(pid_str.c_str());
+        string to_str(message.substr(start, end));
+        int to = atoi(to_str.c_str());
 
-        if (recvAggSign->pid == p->id) {
-            /* Ignore the message that comes from yourself */
-            printf("Ignore aggSig coming from yourself\n");
+        if (to == 0 || to == p->id) {
+            /* Keep parsing! */
+        } else {
+            /* Ignore the message for others */
+            printf("Ignore message not send to you\n");
             return;
         }
 
-        start = end+2; end = (int)message.find("::");
+        start = end+2; end = (int)message.find("::", start);
+        string pid_str(message.substr(start, end-start));
+        recvAggSign->pid = atoi(pid_str.c_str());
+
+        start = end+2; end = (int)message.find("::", start);
         string value_str(message.substr(start, end-start));
         recvAggSign->value = atoi(value_str.c_str());
 
@@ -192,23 +182,31 @@ namespace accountable_confirmer {
         memcpy(sig_byte, sig_str.data(), sig_sz);
         blsSignatureDeserialize(&recvAggSign->aggSig, &sig_byte, sig_sz);
 
-        ac->obtainedAggSignature.push_back(*recvAggSign);
+        p->ac.obtainedAggSignature.push_back(*recvAggSign);
+        CheckRecvAggSignature(p);
+        delete(recvAggSign);
 
     }
 
-    void ParseSubmitMessage(struct Peer* p, struct AccountableConfirmer* ac, string message) {
-        printf("[ParseSubmitMessage] parsing submit message\n");
+    void ParseSubmitMessage(struct Peer* p, string message) {
 
         message::SubmitMsg* recvMsg = new(message::SubmitMsg);
         int start = 0; int end = (int)message.find("::");
-        string pid_str(message.substr(start, end));
-        recvMsg->pid = atoi(pid_str.c_str());
+        string to_str(message.substr(start, end));
+        int to = atoi(to_str.c_str());
 
-        if (recvMsg->pid == p->id) {
-            /* Ignore the message that comes from yourself */
-            printf("Ignore message coming from yourself\n");
+
+        if (to == 0 || to == p->id) {
+            /* Keep parsing! */
+        } else {
+            /* Ignore the message for others */
+            printf("Ignore message not send to you\n");
             return;
         }
+
+        start = end+2; end = (int)message.find("::", start);
+        string pid_str(message.substr(start, end-start));
+        recvMsg->pid = atoi(pid_str.c_str());
 
         start = end+2; end = (int)message.find("::", start);
         string value_str(message.substr(start, end-start));
@@ -225,7 +223,6 @@ namespace accountable_confirmer {
         memcpy(sig_byte, sig_str.data(), sig_sz);
         blsSignatureDeserialize(&recvMsg->sig, &sig_byte, sig_sz);
 
-
         start = end+2; end = (int)message.find("::", start);
         string pub_sz_str(message.substr(start, end-start));
         int pub_sz = atoi(pub_sz_str.c_str());
@@ -237,187 +234,137 @@ namespace accountable_confirmer {
         memcpy(pub_byte, pub_str.data(), pub_sz);
         blsPublicKeyDeserialize(&recvMsg->pub, &pub_byte, pub_sz);
 
-        SubmitMsgVerify(p, ac, recvMsg);
+        SubmitMsgVerify(p, recvMsg);
         delete(recvMsg);
+
     }
 
-    void ParseMessage(struct Peer* p, struct AccountableConfirmer* ac) {
+    void ParseMessage(struct Peer* p) {
         printf("[ParseMessage] Start Waiting for message to parse\n");
 
         while(true) {
-            while(!p->rawMessage.empty()) {
-                printf("[ParseMessage] [%d] Parsing size = %lu\n", p->id, p->rawMessage.size());
-                string message = p->rawMessage.front();
+            while(!p->recvRawMessage.empty()) {
+                string message = p->recvRawMessage.front();
                 int start = 0; int end = (int)message.find("::");
                 string message_type(message.substr(start, end));
                 string trim_message = message.substr(end+2, message.length());
 
                 if (message_type == "submit") {
-                    ParseSubmitMessage(p, ac, trim_message);
-
+                    printf("parsing Submit Message\n");
+                    ParseSubmitMessage(p, trim_message);
                 } else if(message_type == "aggSign") {
-                    ParseAggSignature(p, ac, trim_message);
-
+                    printf("parsing Agg Sign\n");
+                    ParseAggSignature(p, trim_message);
                 } else {
                     // couldn't parse
                 }
 
-                p->rawMessage.pop();
+                p->recvRawMessage.pop();
             }
 
         }
     }
 
-    void CheckRecvMsg(struct Peer* p, struct AccountableConfirmer* ac){
+    void CheckRecvMsg(struct Peer* p){
 
-        if (ac->from.size() > 0) {
-            printf("[CheckRecvMsg] [%d] AC->from size = %lu\n", p->id, ac->from.size());
-        }
-
-
-        if (ac->from.size() >= NUMBER_OF_PROCESSES - NUMBER_OF_FAULTY_PROCESSES) {
+        if (p->ac.from.size() >= NUMBER_OF_PROCESSES - NUMBER_OF_FAULTY_PROCESSES) {
             printf("[CheckRecvMsg] [%d] Receiving enough messages -> progress to Confirm phase\n", p->id);
-            Confirm(p, ac);
+            Confirm(p);
         }
 
     }
 
-    /*
-    void CheckRecvMsg(struct Peer* p, struct AccountableConfirmer* ac){
-        printf("[CheckRecvMsg] Start recvMsgFlag = %d\n", p->recvMsgFlag);
-        while (!p->recvMsgFlag) {
-//            while(!p->recvMsgQueue.empty()){
-//                printf("[CheckRecvMsg] [%d] Received queue size = %lu\n",p->id, p->recvMsgQueue.size());
-//                SubmitMsgVerify(ac, &p->recvMsgQueue.front());
-//                p->recvMsgQueue.pop();
-//            }
+    void CheckRecvAggSignature(struct Peer* p){
 
-            if (ac->from[p->id].size() > 0) {
-                printf("[CheckRecvMsg] AC->from[%d] size = %lu\n", p->id, ac->from[p->id].size());
-            }
-
-
-            if (ac->from[p->id].size() >= NUMBER_OF_PROCESSES - NUMBER_OF_FAULTY_PROCESSES) {
-                p->recvMsgFlag = true;
-                printf("[CheckRecvMsg] [%d] Receiving enough messages -> progress to Confirm phase\n", p->id);
-                Confirm(p, ac);
-            }
-        }
-
-    }
-    */
-
-    int CheckRecvAggSignature(struct Peer* p, struct AccountableConfirmer* ac){
-        int size = p->recvAggSignQueue.size();
-        printf("[CheckRecvAggSignature] [%d] Received queue size = %d\n",p->id, size);
-
-        int detect = 0;
-        if (size >= 2) {
+        if (p->ac.obtainedAggSignature.size() >= 2) {
             printf("[CheckRecvAggSignature] receive enough aggSignatures -> progress to detect phase\n");
-            detect = DetectConflictAggSignature(p, ac);
+            DetectConflictAggSignature(p);
         }
 
-        return detect;
     }
 
     /* Main functionality */
     void InitAccountableConfirmer(struct AccountableConfirmer* ac) {
-        ac->value[0] = 334949;
-        ac->value[1] = 334949;
-        ac->value[2] = 334949;
-        ac->value[3] = 666666;
 
-        for (int i = 0; i < NUMBER_OF_PROCESSES; i++) {
-//            ac->value[i] = 0;
-            ac->confirm[i] = false;
-
-        }
+        ac->value = 0;
+        ac->confirm = false;
         ac->from.clear();
         ac->partialSignature.clear();
         ac->obtainedAggSignature.clear();
 
     }
 
-    void InitPeer(struct Peer* p, struct AccountableConfirmer* ac, int id, int portNumber) {
+    void InitPeer(struct Peer* p, int id, int portNumber) {
 
         p->id = id;
-        thisPid = id;
 
         /* Generate blsPublicKey and blsSecretKey for SubmitMsg Enc/Dec */
         accountable_confirmer_bls::Init();
         accountable_confirmer_bls::KeyGen(&p->keyPair);
 
         /* Clear the receiving queue */
-        while (!p->rawMessage.empty()) p->rawMessage.pop();
-        while (!p->recvMsgQueue.empty()) p->recvMsgQueue.pop();
-        while (!p->recvAggSignQueue.empty()) p->recvAggSignQueue.pop();
+        while (!p->recvRawMessage.empty()) p->recvRawMessage.pop();
 
         p->recvMsgFlag = false;
-        p->recvAggSignFlag = false;
+        p->detectConflict = false;
 
-//        thread runRecv(CheckRecvMsg, p, ac);
-//        p->recvThread.emplace_back(move(runRecv));
+        InitAccountableConfirmer(&p->ac);
 
-        thread runParse(ParseMessage, p, ac);
+        /* Start listening to the received message*/
+        thread runParse(ParseMessage, p);
         p->recvThread.emplace_back(move(runParse));
         printf("[InitPeer] [%d] Init, portNumber = %d\n", p->id, portNumber);
     }
 
-    void Submit(struct Peer* p, struct AccountableConfirmer* ac, int v) {
+    void Submit(struct Peer* p, int value, int to) {
 
         /* Init the submitMsg */
         p->msg.pid = p->id;
-        p->msg.value = v;
+        p->msg.value = value;
         p->msg.pub = p->keyPair.pub;
 
         /* Init the partial signature for the submit value */
         ShareSign(p);
 
         /* Store this peer's value to the AccountableConfirmer */
-        ac->value[p->id] = v;
+        p->ac.value = value;
 
         /* Broadcast the submitMsg to everyone */
-        BroadcastSubmitMessage(p);
+        BroadcastSubmitMessage(p, to);
 
-        printf("[Submit] [%d] submit value %d \n", p->id, v);
+        printf("[Submit] [%d] submit value %d \n", p->id, value);
     }
 
-    void Confirm(struct Peer* p, struct AccountableConfirmer* ac) {
+    void Confirm(struct Peer* p) {
 
         /* Confirm in the AccountableConfirmer */
-        ac->confirm[p->id] = true;
+        p->ac.confirm = true;
 
         /* Generate the aggregate signature and store it in p */
-        GenerateAggSignature(p, ac);
+        GenerateAggSignature(p);
 
         /* Broadcast the aggregate signature to everyone */
-        BroadcastAggregateSignature(p);
+        BroadcastAggregateSignature(p, 0);
+
+        /* This flag will make the peer start sending aggregate Signature*/
+        p->recvMsgFlag = true;
 
         printf("[Confirm] [%d] Confirmed\n", p->id);
     }
 
-    int DetectConflictAggSignature(struct Peer* p, struct AccountableConfirmer* ac) {
-        int detect = 0;
-//        if(p->aco.obtainedAggSignature.size() <= 1){
-//            // No need to compare
-//            return detect;
-//        }
+    void DetectConflictAggSignature(struct Peer* p) {
 
-        message::SubmitAggSign tmp = ac->obtainedAggSignature.front();
+        message::SubmitAggSign tmp = p->ac.obtainedAggSignature.front();
 
+        for(vector<message::SubmitAggSign>::size_type i = 1; i != p->ac.obtainedAggSignature.size(); i++) {
+            printf("[DetectConflictAggSignature] [%d] Detecting....\n", p->id);
 
-        for(vector<message::SubmitAggSign>::size_type i = 1; i != ac->obtainedAggSignature.size(); i++) {
-            printf("[DetectConflictAggSignature] Detecting....\n");
-
-            if(!(ac->obtainedAggSignature[i] == tmp) && ac->confirm[p->id]){
-                printf("[DetectConflictAggSignature] first value = %d, second value = %d\n",tmp.value ,ac->obtainedAggSignature[i].value);
-                printf("[DetectConflictAggSignature] Reach the proof\n");
-                detect = 1;
+            if(!(p->ac.obtainedAggSignature[i] == tmp) && p->ac.confirm){
+                printf("[DetectConflictAggSignature] [%d] REACH THE PROOF!!!\n", p->id);
+                p->detectConflict = true;
                 break;
             }
         }
-
-        return detect;
 
     }
 
