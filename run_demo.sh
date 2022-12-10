@@ -2,16 +2,16 @@
 CORRECT_VALUE=334949
 WRONG_VALUE=666666
 
-PORT_ZERO=9000
-PORT_ONE=9001
-PORT_TWO=9002
-PORT_THREE=9003
+PORT_ZERO=9001
+PORT_ONE=9002
+PORT_TWO=9003
+PORT_THREE=9004
 
 
-./accountable-confirmer $PORT_ZERO $CORRECT_VALUE &
-./accountable-confirmer $PORT_ONE $CORRECT_VALUE &
-./accountable-confirmer $PORT_TWO $CORRECT_VALUE &
-./accountable-confirmer $PORT_THREE $WRONG_VALUE &
+./accountable-confirmer $PORT_ZERO  &
+./accountable-confirmer $PORT_ONE  &
+./accountable-confirmer $PORT_TWO  &
+./accountable-confirmer $PORT_THREE  &
 
 
 #rep=({0..2})

@@ -16,141 +16,19 @@
 
 using namespace std;
 
-#define TOTAL_USER 4
 
-int userCount = 0;
-int postFlag = 0;
-
-accountable_confirmer::Peer P;
-accountable_confirmer::AccountableConfirmer AC;
-
-bool ParseAggSignMessage(string message, message::SubmitAggSign* recvAggSign) {
-
-    int start = 0; int end = (int)message.find("::");
-    string pid_str(message.substr(start, end));
-    recvAggSign->pid = atoi(pid_str.c_str());
-
-    if (recvAggSign->pid == P.id) {
-        /* Ignore the message that comes from yourself */
-        printf("Ignore aggSig coming from yourself\n");
-        return false;
-    }
-
-    start = end+2; end = (int)message.find("::");
-    string value_str(message.substr(start, end-start));
-    recvAggSign->value = atoi(value_str.c_str());
-
-    start = end+2; end = (int)message.find("::", start);
-    string sig_sz_str(message.substr(start, end-start));
-    int sig_sz = atoi(sig_sz_str.c_str());
-
-    start = end+2; end = (int)message.find("::", start);
-    string sig_str(message.substr(start, end-start));
-
-    byte sig_byte[sig_str.length()];
-    memcpy(sig_byte, sig_str.data(), sig_sz);
-//    byte* sig_tmp = sig_byte;
-    blsSignatureDeserialize(&recvAggSign->aggSig, &sig_byte, sig_sz);
-
-    return true;
-}
-
-bool ParseSubmitMessage(string message, message::SubmitMsg* recvMsg) {
-    usleep(100);
-    int start = 0; int end = (int)message.find("::");
-    string pid_str(message.substr(start, end));
-    recvMsg->pid = atoi(pid_str.c_str());
-
-    if (recvMsg->pid == P.id) {
-        /* Ignore the message that comes from yourself */
-        printf("Ignore message coming from yourself\n");
-        return false;
-    }
-
-    start = end+2; end = (int)message.find("::", start);
-    string value_str(message.substr(start, end-start));
-    recvMsg->value = atoi(value_str.c_str());
-
-    start = end+2; end = (int)message.find("::", start);
-    string sig_sz_str(message.substr(start, end-start));
-    int sig_sz = atoi(sig_sz_str.c_str());
-
-    start = end+2; end = (int)message.find("::", start);
-    string sig_str(message.substr(start, end-start));
-
-    byte sig_byte[sig_str.length()];
-    memcpy(sig_byte, sig_str.data(), sig_sz);
-    blsSignatureDeserialize(&recvMsg->sig, &sig_byte, sig_sz);
-
-
-    start = end+2; end = (int)message.find("::", start);
-    string pub_sz_str(message.substr(start, end-start));
-    int pub_sz = atoi(pub_sz_str.c_str());
-
-    start = end+2; end = (int)message.find("::", start);
-    string pub_str(message.substr(start, end-start));
-
-    byte pub_byte[pub_str.length()];
-    memcpy(pub_byte, pub_str.data(), pub_sz);
-
-    blsPublicKeyDeserialize(&recvMsg->pub, &pub_byte, pub_sz);
-
-
-    return true;
-}
-
-void ParseMessage(const std::string& message) {
-    int start = 0; int end = (int)message.find("::");
-    string message_type(message.substr(start, end));
-    string trim_message = message.substr(end+2, message.length());
-
-    if (message_type == "submit") {
-        message::SubmitMsg* recvMsg = new(message::SubmitMsg);
-        if (ParseSubmitMessage(trim_message, recvMsg)) {
-            P.recvMsgQueue.push(*recvMsg);
-            printf("Push recvMsg to queue, queue size = %lu\n", P.recvMsgQueue.size());
-            usleep(1000000);
-        }
-        delete(recvMsg);
-
-    } else if(message_type == "aggSign") {
-        message::SubmitAggSign* recvAggSign = new(message::SubmitAggSign);
-        if (ParseAggSignMessage(trim_message, recvAggSign)) {
-            P.recvAggSignQueue.push(*recvAggSign);
-            printf("Push recvAggSign to queue\n");
-            usleep(1000000);
-        }
-        delete(recvAggSign);
-
-    } else {
-        // couldn't parse
-    }
-
-    return;
-
-}
 
 void StartServer(int serverPortNumber) {
     // Init Server
     TCPServer server(IPV::V4, serverPortNumber);
 
-    server.OnJoin = [&serverPortNumber](TCPConnection::pointer server) {
-        userCount++;
-        if (userCount == TOTAL_USER)    postFlag = 1;
-//        printf("User has joined the server [%d]\n", serverPortNumber);
-//        std::cout << "User has joined the server : " << server->Getusername() << std::endl;
-    };
+    server.OnJoin = [](TCPConnection::pointer server) { };
 
     server.OnLeave = [&serverPortNumber](TCPConnection::pointer server) {
         printf("User has left the server [%d]\n", serverPortNumber);
-
-//        std::cout << "User has left the server: " << server->Getusername() << std::endl;
     };
 
     server.OnClientMessage = [&server](const std::string& message) {
-        // parse the message
-        //...
-        // send the message to the server
         server.Broadcast(message);
     };
     server.Run();
@@ -159,107 +37,137 @@ void StartServer(int serverPortNumber) {
 int main(int argc, char *argv[])
 {
     /* Test for correct number of parameters */
-    if (argc < 3)
-    {
-        exit(1);
-    }
+//    if (argc < 3)
+//    {
+//        printf("Not enough input\n");
+//        exit(1);
+//    }
 
     int portNumber = atoi(argv[1]);
-    int submitValue = atoi(argv[2]);
-    int peersPortNumber[NUMBER_OF_PROCESSES] = {9000, 9001, 9002, 9003};
+    vector<int> submitValue;
+    vector<int> sendto;
+    int peersPortNumber[NUMBER_OF_PROCESSES] = {9001, 9002, 9003, 9004};
     int pid = portNumber - 9000;
+
+    submitValue.clear();    sendto.clear();
+
+    if (pid == 1){
+        submitValue.push_back(334949);
+        sendto.push_back(0);
+    } else if (pid == 2){
+        submitValue.push_back(666666);
+        sendto.push_back(0);
+    } else if (pid == 3){
+        submitValue.push_back(666666);
+        submitValue.push_back(334949);
+        sendto.push_back(2);
+        sendto.push_back(1);
+    } else if (pid == 4){
+        submitValue.push_back(666666);
+        submitValue.push_back(334949);
+        sendto.push_back(2);
+        sendto.push_back(1);
+    }
+
+    accountable_confirmer::Peer P;
+    accountable_confirmer::InitPeer(&P, pid, portNumber);
+
 
     /* Start Server */
     thread s(StartServer, portNumber);
     usleep(100000);
-    /* Start client */
-    TCPClient c0("localhost", peersPortNumber[0]);
-//    c0.OnMessage = ParseMessage;
-    c0.OnMessage = [](const std::string& message) {
-//        printf("[c0 OnMessage] push message to P.rawMessage\n");
-        P.rawMessage.push(message);
-    };
-    thread t0( [&c0] () { printf("run c0\n"); c0.Run(); for(;;);});
-    P.clientThread.emplace_back(move(t0));
 
-    TCPClient c1("localhost", peersPortNumber[1]);
-//    c1.OnMessage = ParseMessage;
-    c1.OnMessage = [](const std::string& message) {
-//        printf("[c1 OnMessage] push message to P.rawMessage\n");
-        P.rawMessage.push(message);
+    /* Start client */
+    TCPClient c1("localhost", peersPortNumber[0]);
+    c1.OnMessage = [&P](const std::string& message) {
+        P.recvRawMessage.push(message);
     };
-    thread t1( [&c1] () { printf("run c1\n");c1.Run(); for(;;);});
+    thread t1( [&c1] () { c1.Run(); for(;;);});
     P.clientThread.emplace_back(move(t1));
 
-    TCPClient c2("localhost", peersPortNumber[2]);
-//    c2.OnMessage = ParseMessage;
-    c2.OnMessage = [](const std::string& message) {
-//        printf("[c2 OnMessage] push message to P.rawMessage\n");
-        P.rawMessage.push(message);
+    TCPClient c2("localhost", peersPortNumber[1]);
+    c2.OnMessage = [&P](const std::string& message) {
+        P.recvRawMessage.push(message);
     };
-    thread t2( [&c2] () { printf("run c2\n"); c2.Run(); for(;;);});
+    thread t2( [&c2] () { c2.Run(); for(;;);});
     P.clientThread.emplace_back(move(t2));
 
-    TCPClient c3("localhost", peersPortNumber[3]);
-//    c3.OnMessage = ParseMessage;
-    c3.OnMessage = [](const std::string& message) {
-//        printf("[c3 OnMessage] push message to P.rawMessage\n");
-        P.rawMessage.push(message);
+    TCPClient c3("localhost", peersPortNumber[2]);
+    c3.OnMessage = [&P](const std::string& message) {
+        P.recvRawMessage.push(message);
     };
-    thread t3( [&c3] () { printf("run c3\n"); c3.Run(); for(;;);});
+    thread t3( [&c3] () { c3.Run(); for(;;);});
     P.clientThread.emplace_back(move(t3));
 
-    accountable_confirmer::InitAccountableConfirmer(&AC);
-    accountable_confirmer::InitPeer(&P, &AC, pid, portNumber);
+    TCPClient c4("localhost", peersPortNumber[3]);
+    c4.OnMessage = [&P](const std::string& message) {
+        P.recvRawMessage.push(message);
+    };
+    thread t4( [&c4] () {  c4.Run(); for(;;);});
+    P.clientThread.emplace_back(move(t4));
 
-    accountable_confirmer::Submit(&P, &AC, submitValue);
-    usleep(10000);
-//    string submit_message((char*)P.serializeMsg.data());
-    string submit_message(reinterpret_cast<const char*>(P.serializeMsg.data()), P.serializeMsg.size());
-    submit_message += '\n';
-    usleep(1000000);
+    int size = sendto.size();
+    for (int i = 0; i < size; i++){
+        printf("[%d] This value(%d) is sent to %d\n", pid, submitValue.at(i), sendto.at(i));
+        accountable_confirmer::Submit(&P, submitValue.at(i), sendto.at(i));
+        usleep(1000000);
+        string submit_message(reinterpret_cast<const char*>(P.serializeMsg.data()), P.serializeMsg.size());
+        submit_message += '\n';
 
-
-    switch (portNumber) {
-        case 9000:
-            printf("[0] post\n");
-            c0.Post(submit_message);
-            break;
-        case 9001:
-            printf("[1] post\n");
-            c1.Post(submit_message);
-            break;
-        case 9002:
-            printf("[2] post\n");
-            c2.Post(submit_message);
-            break;
-        case 9003:
-            printf("[3] post\n");
-            c3.Post(submit_message);
-            break;
+        switch (portNumber) {
+            case 9001:
+                c1.Post(submit_message);
+                break;
+            case 9002:
+                c2.Post(submit_message);
+                break;
+            case 9003:
+                c3.Post(submit_message);
+                break;
+            case 9004:
+                c4.Post(submit_message);
+                break;
+        }
     }
 
 
+    while(!P.recvMsgFlag) {
+        // keep waiting
+    }
+    printf("[%d] GET ENOUGH MSG!!\n", pid);
 
+    string aggSign(reinterpret_cast<const char*>(P.serializeAggSign.data()), P.serializeAggSign.size());
+    aggSign += '\n';
 
+    switch (portNumber) {
+        case 9001:
+            printf("[1] Post aggSign\n");
+            c1.Post(aggSign);
+            break;
+        case 9002:
+            printf("[2] Post aggSign\n");
+            c2.Post(aggSign);
+            break;
+        case 9003:
+            printf("[3] Post aggSign\n");
+            c3.Post(aggSign);
+            break;
+        case 9004:
+            printf("[4] Post aggSign\n");
+            c4.Post(aggSign);
+            break;
+    }
 
+    while(!P.detectConflict) {
+        // keep waiting
+    }
 
-    usleep(100000000);
-    printf("======Wake up from sleep======\n");
-    c0.Stop(); c1.Stop(); c2.Stop(); c3.Stop();
+    printf("[%d] DETECT CONFLICT!!\n", pid);
+
+    c1.Stop(); c2.Stop(); c3.Stop(); c4.Stop();
     accountable_confirmer::Close(&P);
     s.join();
 
-
-////    if(closeFlag) {
-////        c0.Stop(); c1.Stop(); c2.Stop(); c3.Stop();
-////        accountable_confirmer::Close(&P);
-////        s.join();
-////        runRecv.join();
-////    }
-//    c0.Stop(); c1.Stop(); c2.Stop(); c3.Stop();
-//    t0.join(); t1.join(); t2.join(); t3.join();
-//    s.join();
 
 
     return 0;
