@@ -11,6 +11,7 @@
 using namespace std;
 
 namespace accountable_confirmer {
+    queue<string> recvRawMessage;
 
     /* Return 1 if found, Return 0 if not found */
     int FindPid(vector<int> pidVector, int elem){
@@ -88,9 +89,6 @@ namespace accountable_confirmer {
         }
 
         auto msg = to_string(submitValue).c_str();
-//        char valueToSign[MAX_DIGIT + sizeof(char)];
-//        sprintf(valueToSign, "%d", submitValue);
-//        const size_t msgSize = strlen(valueToSign);
 
         blsSignature aggSig;
 
@@ -102,7 +100,9 @@ namespace accountable_confirmer {
 
     void BroadcastSubmitMessage(struct Peer* p, int to) {
         /* Need to clear the serializeMsg everytime before sending */
-        p->serializeMsg.clear();
+        vector<byte> serializeMsg;
+        serializeMsg.clear();
+
 
         /* Serialize blsSignature */
         byte bufSig[128];
@@ -119,19 +119,28 @@ namespace accountable_confirmer {
         /* Serialize Submit message */
         string message_type = "submit";
         auto pre = (boost::format("%1%::%2%::%3%::%4%::%5%::") % message_type % to % p->msg.pid % p->msg.value % sig_sz ).str();
-        for (char i : pre) p->serializeMsg.push_back(byte(i));
-        p->serializeMsg.insert(p->serializeMsg.end(), vSig.begin(), vSig.end());
+        for (char i : pre) serializeMsg.push_back(byte(i));
+        serializeMsg.insert(serializeMsg.end(), vSig.begin(), vSig.end());
         auto mid = (boost::format("::%1%::") % pub_sz ).str();
-        for (char i : mid) p->serializeMsg.push_back(byte(i));
-        p->serializeMsg.insert(p->serializeMsg.end(), vPub.begin(), vPub.end());
+        for (char i : mid) serializeMsg.push_back(byte(i));
+        serializeMsg.insert(serializeMsg.end(), vPub.begin(), vPub.end());
         auto end = (boost::format("::") ).str();
-        for (char i : end) p->serializeMsg.push_back(byte(i));
+        for (char i : end) serializeMsg.push_back(byte(i));
+
+        /* Send the serialized message */
+        string submit_message(reinterpret_cast<const char*>(serializeMsg.data()), serializeMsg.size());
+        submit_message += '\n';
+
+        printf("[BroadcastSubmitMessage] client [%d] Send submit message to [%d]\n",p->id, to);
+        p->clients[p->id - 1].Post(submit_message);
+        return;
 
     }
 
     void BroadcastAggregateSignature(struct Peer* p, int to) {
         /* Need to clear the serializeAggSign everytime before sending */
-        p->serializeAggSign.clear();
+        vector<byte> serializeAggSign;
+        serializeAggSign.clear();
 
         /* Serialize blsSignature (Aggregate Signature) */
         byte bufSig[128];
@@ -142,10 +151,17 @@ namespace accountable_confirmer {
         /* Serialize SubmitAggSign */
         string message_type = "aggSign";
         auto pre = (boost::format("%1%::%2%::%3%::%4%::%5%::") % message_type % to % p->aggSignMsg.pid % p->aggSignMsg.value % sig_sz ).str();
-        for (char i : pre) p->serializeAggSign.push_back(byte(i));
-        p->serializeAggSign.insert(p->serializeAggSign.end(), vSig.begin(), vSig.end());
+        for (char i : pre) serializeAggSign.push_back(byte(i));
+        serializeAggSign.insert(serializeAggSign.end(), vSig.begin(), vSig.end());
         auto end = (boost::format("::") ).str();
-        for (char i : end) p->serializeAggSign.push_back(byte(i));
+        for (char i : end) serializeAggSign.push_back(byte(i));
+
+        /* Send the serialized message */
+        string aggSign(reinterpret_cast<const char*>(serializeAggSign.data()), serializeAggSign.size());
+        aggSign += '\n';
+
+        printf("[BroadcastAggregateSignature] [%d] Broadcast aggregate signature to peer\n", p->id);
+        p->clients[p->id - 1].Post(aggSign);
 
     }
 
@@ -243,8 +259,9 @@ namespace accountable_confirmer {
         printf("[ParseMessage] Start Waiting for message to parse\n");
 
         while(true) {
-            while(!p->recvRawMessage.empty()) {
-                string message = p->recvRawMessage.front();
+            usleep(100000);
+            while(!recvRawMessage.empty()) {
+                string message = recvRawMessage.front();
                 int start = 0; int end = (int)message.find("::");
                 string message_type(message.substr(start, end));
                 string trim_message = message.substr(end+2, message.length());
@@ -259,7 +276,7 @@ namespace accountable_confirmer {
                     // couldn't parse
                 }
 
-                p->recvRawMessage.pop();
+                recvRawMessage.pop();
             }
 
         }
@@ -283,18 +300,28 @@ namespace accountable_confirmer {
 
     }
 
+    void InitClient(struct Peer* p, int index, int portNumber){
+
+        p->clients[index].Init("localhost", portNumber);
+        p->clients[index].OnMessage = [] (const std::string& message) {
+            recvRawMessage.push(message);
+        };
+        thread t( [&p, &index] () { p->clients[index].Run(); for(;;);});
+        p->clientThread.emplace_back(move(t));
+        usleep(100000);
+    }
+
+
     /* Main functionality */
     void InitAccountableConfirmer(struct AccountableConfirmer* ac) {
-
         ac->value = 0;
         ac->confirm = false;
         ac->from.clear();
         ac->partialSignature.clear();
         ac->obtainedAggSignature.clear();
-
     }
 
-    void InitPeer(struct Peer* p, int id, int portNumber) {
+    void InitPeer(struct Peer* p, int id, int totalPeers) {
 
         p->id = id;
 
@@ -303,17 +330,25 @@ namespace accountable_confirmer {
         accountable_confirmer_bls::KeyGen(&p->keyPair);
 
         /* Clear the receiving queue */
-        while (!p->recvRawMessage.empty()) p->recvRawMessage.pop();
+        while (!recvRawMessage.empty()) recvRawMessage.pop();
 
         p->recvMsgFlag = false;
         p->detectConflict = false;
 
+        /* Init accountable confirmer */
         InitAccountableConfirmer(&p->ac);
+
+        /* Init Clients */
+        for (int i = 0; i < totalPeers; i++) {
+            InitClient(p, i, DEFAULT_PORT_NUMBER+i+1);
+        }
+
 
         /* Start listening to the received message*/
         thread runParse(ParseMessage, p);
         p->recvThread.emplace_back(move(runParse));
-        printf("[InitPeer] [%d] Init, portNumber = %d\n", p->id, portNumber);
+
+        printf("[InitPeer] [%d] Init \n", p->id );
     }
 
     void Submit(struct Peer* p, int value, int to) {
@@ -369,21 +404,15 @@ namespace accountable_confirmer {
     }
 
     void Close(struct Peer* p) {
-        for (int i = 0; i < p->recvThread.size(); i++) {
-            if (p->recvThread[i].joinable()) {
-                p->recvThread[i].join();
-            }
 
+        for (auto &thr : p->recvThread) {
+            thr.detach();
         }
-        for (int i = 0; i < NUMBER_OF_PROCESSES; i++) {
-            if (p->clientThread[i].joinable()) {
-                printf("[%d] join thread %d\n",p->id, i);
-                p->clientThread[i].join();
-            } else {
-                printf("[%d] thread %d is not joinable\n",p->id, i);
-            }
 
+        for (auto &thr : p->clientThread) {
+            thr.detach();
         }
+
         printf("[Close] Successfully\n");
     }
 
