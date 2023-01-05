@@ -95,11 +95,10 @@ int main(int argc, char *argv[])
 
     /* Submit */
     int size = sendto.size();
-    printf("[%d] sendto size: %d\n",id, size);
     for (int i = 0; i < size; i++){
 
         accountable_confirmer::Submit(&P, submitValue.at(i), sendto.at(i));
-        usleep(100000);
+
 
     }
     while(!P.detectConflict) {

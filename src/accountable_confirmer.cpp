@@ -133,6 +133,7 @@ namespace accountable_confirmer {
 
         printf("[BroadcastSubmitMessage] client [%d] Send submit message to [%d]\n",p->id, to);
         p->clients[p->id - 1].Post(submit_message);
+        usleep(100000);
         return;
 
     }
@@ -162,7 +163,8 @@ namespace accountable_confirmer {
 
         printf("[BroadcastAggregateSignature] [%d] Broadcast aggregate signature to peer\n", p->id);
         p->clients[p->id - 1].Post(aggSign);
-
+        usleep(100000);
+        return;
     }
 
     void ParseAggSignature(struct Peer* p, string message) {
@@ -256,7 +258,6 @@ namespace accountable_confirmer {
     }
 
     void ParseMessage(struct Peer* p) {
-        printf("[ParseMessage] Start Waiting for message to parse\n");
 
         while(true) {
             usleep(100000);
