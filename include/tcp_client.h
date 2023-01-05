@@ -11,30 +11,20 @@ namespace io = boost::asio;
 using boost::asio::ip::tcp;
 using net_error = boost::system::error_code;
 using MessageHandler = std::function<void(std::string)>;
-using work_guard_type = io::executor_work_guard<io::io_context::executor_type>;
+//using work_guard_type = io::executor_work_guard<io::io_context::executor_type>;
 
-class TCPClient {
+class TCPClient : public std::enable_shared_from_this<TCPClient> {
 
 public:
-    // create a shared ptr within yourself pointing to yourself
-//    using pointer = std::shared_ptr<TCPClient>;
-//    static pointer Create() {
-//        return pointer(new TCPClient());
-//    }
-//
-//    tcp::socket& Socket() {
-//        return _socket;
-//    }
 
-
-    TCPClient(const std::string& address, int port);
+    TCPClient();
+//    TCPClient(const std::string& address, int port);
 
     void Init(const std::string &address, int port);
     void Run();
     void Stop();
     void Post(const std::string& message);
 private:
-//    TCPClient();
     // Start() call these two
     // wait for a new message from server
     void asyncRead();
@@ -48,8 +38,8 @@ public:
     MessageHandler OnMessage;
 private:
     io::io_context _ioContext;
-    work_guard_type _workGuard;
-    tcp::socket _socket ;
+//    work_guard_type _workGuard;
+    std::shared_ptr<tcp::socket> _socket ;
     tcp::resolver::results_type _endpoints;
     io::streambuf _streamBuf{65536};
 
