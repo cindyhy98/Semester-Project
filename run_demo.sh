@@ -1,18 +1,14 @@
 #!/bin/bash
-CORRECT_VALUE=334949
-WRONG_VALUE=666666
 
-PORT_ZERO=9001
-PORT_ONE=9002
-PORT_TWO=9003
-PORT_THREE=9004
+rep=({1..4})
+if [[ $# -gt 0 ]]; then
+    rep=($@)
+fi
 
-
-./accountable-confirmer $PORT_ZERO  &
-./accountable-confirmer $PORT_ONE  &
-./accountable-confirmer $PORT_TWO  &
-./accountable-confirmer $PORT_THREE  &
-
+for i in "${rep[@]}"; do
+    echo "Running peer $i"
+    ./accountable-confirmer ../config/peer${i}.conf &
+done
 
 #rep=({0..2})
 #if [[ $# -gt 0 ]]; then
