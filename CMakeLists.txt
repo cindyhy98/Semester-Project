@@ -8,15 +8,14 @@ project(accountable-confirmer)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(SOURCE_FILES main.cpp
-        src/accountable_confirmer.cpp
         src/accountable_confirmer_bls.cpp
-        src/tcp_server.cpp src/tcp_client.cpp src/tcp_connection.cpp)
+        src/core.cpp
+        src/tcp_server.cpp src/tcp_client.cpp src/tcp_connection.cpp )
 
 # include
 include_directories(include)
 include_directories(include/bls)
 include_directories(include/mcl)
-include_directories(include/rb)
 
 find_package(Boost 1.40 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
@@ -42,18 +41,6 @@ if( OpenSSL_FOUND )
 else()
     message(STATUS "OpenSSL Not Found")
 endif()
-
-
-
-# executable
-#add_executable(accountable-confirmer
-#        main.cpp
-#        src/accountable_confirmer.cpp
-#        src/accountable_confirmer_bls.cpp
-#        src/socket.cpp src/network.cpp src/network_client.cpp)
-
-#add_executable(accountable-confirmer src/network_server.cpp src/tcp_connection.cpp src/tcp_server.cpp)
-#add_executable(accountable-confirmer_client src/network_client.cpp src/tcp_client.cpp)
 
 add_executable(accountable-confirmer ${SOURCE_FILES})
 
