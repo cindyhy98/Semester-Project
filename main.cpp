@@ -7,12 +7,10 @@
 #include <queue>
 
 /* Internal Library */
-#include "accountable_confirmer.h"
+#include "core.h"
 #include "message.h"
 
 using namespace std;
-
-#define MAX_PEERS_NUMBER 20
 
 vector<int> configParam[4];
 
@@ -89,17 +87,14 @@ int main(int argc, char *argv[])
     printf("[%d] Server Started\n", id+8000);
     usleep(100000);
 
-    accountable_confirmer::Peer P;
-    accountable_confirmer::InitPeer(&P, id, totalPeers);
+    core::Peer P;
+    core::InitPeer(&P, id, totalPeers);
 
 
     /* Submit */
     int size = sendto.size();
     for (int i = 0; i < size; i++){
-
-        accountable_confirmer::Submit(&P, submitValue.at(i), sendto.at(i));
-
-
+        core::Submit(&P, submitValue.at(i), sendto.at(i));
     }
     while(!P.detectConflict) {
         // keep waiting
@@ -107,7 +102,7 @@ int main(int argc, char *argv[])
 
     printf("[%d] DETECT CONFLICT!!\n", id);
 
-    accountable_confirmer::Close(&P);
+    core::Close(&P);
     s.join();
 
 
