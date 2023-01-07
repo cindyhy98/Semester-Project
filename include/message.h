@@ -3,11 +3,7 @@
 
 #include <string>
 #include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <openssl/sha.h>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
+
 
 /* Internal Library*/
 #include "accountable_confirmer_bls.h"
@@ -15,23 +11,31 @@
 
 using namespace std;
 namespace message {
+    /* Use Enum for the message type */
+    enum messageType {none, send, echo, ready, submit, aggSign};
+
+    /* For Reliable Broadcast */
+    struct RBMessage {
+        int type;
+        int pid;
+        string content;
+    };
 
     struct SubmitAggSign {
-        int pid;            // id for the submit process
+        int type;
+        int pid;             // id for the submit process
         int value;           // submit value
         blsSignature aggSig; // Aggregate signature for the value
 //        vector<blsPublicKey> pubKeyVector; // all public keys of this signature
 
         bool operator==( const SubmitAggSign &other){
             return value == other.value;
-//            aggSig.v.x.d == other.aggSig.v.x.d &&
-//            aggSig.v.y.d == other.aggSig.v.y.d &&
-//            aggSig.v.z.d == other.aggSig.v.z.d;
         }
 
     };
 
     struct SubmitMsg {
+        int type;
         int pid;            // id for the submit process
         int value;          // submit value
         blsSignature sig;   // Signature for the value
