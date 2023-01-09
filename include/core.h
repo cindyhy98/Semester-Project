@@ -39,15 +39,15 @@ namespace core {
 
     struct Peer {
 
-        int id;     // this can imply portNumber. i.e. id = 1, portNumber = 9001
-        accountable_confirmer_bls::Key keyPair;   // for ShareSigned, ShareVerify
+        int id;                                   // Imply portNumber. i.e. id = 1, portNumber = 9001
+        accountable_confirmer_bls::Key keyPair;   // For ShareSigned, ShareVerify
         message::SubmitMsg msg;
         message::SubmitAggSign aggSignMsg;
 
         vector<thread> recvThread;
-        bool recvMsgFlag;
         bool detectConflict;
 
+        /* Clients */
         TCPClient clients[MAX_PEERS_NUMBER];
         vector<thread> clientThread;
 
@@ -57,12 +57,11 @@ namespace core {
         /* Reliable Broadcast */
         message::RBMessage rbMsg;
         ReliableBroadcast rb;
+        int isReliableBroadcast;
 
     };
 
     /* Reliable Broadcast main functions */
-
-    void ParseMessage(struct Peer* p);
 
     void Broadcast(struct Peer* p, struct message::RBMessage* msg);
 
@@ -76,6 +75,9 @@ namespace core {
 
     void CheckIfReady(struct Peer* p);
 
+
+    /* Parse the received messages */
+    void ParseMessage(struct Peer* p);
 
     /* Accountable Confirmer main functions */
 
@@ -100,8 +102,6 @@ namespace core {
 
     void ParseSubmitMessage(struct Peer* p, string message);
 
-//    void ParseMessage(struct Peer* p);
-
     /* Check all received messages from the queue
      * If there's enough verified messages -> go to confirm phase */
     void CheckRecvMsg(struct Peer* p);
@@ -112,7 +112,7 @@ namespace core {
 
     void InitClient(struct Peer* p, int index, int portNumber);
 
-    void InitPeer(struct Peer* p, int id, int totalPeers);
+    void InitPeer(struct Peer* p, int id, int totalPeers, int isReliableBroadcast);
 
     void Submit(struct Peer* p, int value, int to);
 
@@ -121,6 +121,7 @@ namespace core {
     /* Set detectConflict flag to true if detect conflict */
     void DetectConflictAggSignature(struct Peer* p);
 
+    /* Destroy all the threads */
     void Close(struct Peer* p);
 }
 

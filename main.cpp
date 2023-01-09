@@ -8,20 +8,21 @@
 
 /* Internal Library */
 #include "core.h"
-#include "message.h"
+
+#define NUMBER_OF_CONFIG_VAR 5
 
 using namespace std;
 
-vector<int> configParam[4];
+vector<int> configParam[NUMBER_OF_CONFIG_VAR];
 
 void StartServer(int serverPortNumber) {
-    // Init Server
+
     TCPServer server(IPV::V4, serverPortNumber);
 
     server.OnJoin = [](TCPConnection::pointer server) { };
 
-    server.OnLeave = [&serverPortNumber](TCPConnection::pointer server) {
-        printf("User has left the server [%d]\n", serverPortNumber);
+    server.OnLeave = [](TCPConnection::pointer server) {
+        printf("User has left the server\n");
     };
 
     server.OnClientMessage = [&server](const std::string& message) {
@@ -69,6 +70,7 @@ int main(int argc, char *argv[])
     string file_path = argv[1];
     LoadConfig(file_path);
 
+    /* Store config variable */
     int totalPeers = configParam[0][1];
     int id = configParam[1][1];
     vector<int> submitValue;
@@ -81,14 +83,17 @@ int main(int argc, char *argv[])
     for (int i = 0; i < configParam[2][1]; i++){
         sendto.push_back(configParam[3][i+1]);
     }
+    int isReliableBroadcast = configParam[4][1];
 
-    /* Start Server */
-    thread s(StartServer, id+8000);
-    printf("[%d] Server Started\n", id+8000);
+
+    /* Start server */
+    thread s(StartServer, id+DEFAULT_PORT_NUMBER);
+    printf("[%d] Server Started\n", id+DEFAULT_PORT_NUMBER);
     usleep(100000);
 
+    /* Start peer */
     core::Peer P;
-    core::InitPeer(&P, id, totalPeers);
+    core::InitPeer(&P, id, totalPeers, isReliableBroadcast);
 
 
     /* Submit */
@@ -96,6 +101,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < size; i++){
         core::Submit(&P, submitValue.at(i), sendto.at(i));
     }
+
     while(!P.detectConflict) {
         // keep waiting
     }
@@ -104,8 +110,6 @@ int main(int argc, char *argv[])
 
     core::Close(&P);
     s.join();
-
-
 
     return 0;
 }

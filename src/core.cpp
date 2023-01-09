@@ -7,7 +7,6 @@ using namespace std;
 namespace core {
 
     queue<string> recvRawMessage;
-    /* Reliable Broadcast */
 
     void ParseMessage(struct Peer* p) {
 
@@ -22,6 +21,8 @@ namespace core {
 
                 if (atoi(type_str.c_str()) != message::submit &&
                     atoi(type_str.c_str()) != message::aggSign ) {
+
+                    /* Parsing reliable broadcast message */
 
                     recvMsg->type = atoi(type_str.c_str());
 
@@ -38,19 +39,18 @@ namespace core {
                             printf("Something goes wrong\n");
                             break;
                         case message::send:
-
                             DeliverSend(p, recvMsg);
                             break;
                         case message::echo:
-
                             DeliverEcho(p, recvMsg);
                             break;
                         case message::ready:
-
                             DeliverReady(p, recvMsg);
                             break;
                     }
                 } else {
+                    /* Parsing accountable confirmer message*/
+
                     string trim_message = message.substr(end+2, message.length());
 
                     switch (atoi(type_str.c_str())) {
@@ -63,7 +63,6 @@ namespace core {
                     }
                 }
 
-
                 recvRawMessage.pop();
                 delete(recvMsg);
             }
@@ -72,7 +71,7 @@ namespace core {
     }
 
     void Broadcast(struct Peer* p, struct message::RBMessage* msg) {
-        /* Need to clear the serializeMsg everytime before sending */
+        /* Clear the serializeMsg everytime before sending */
         vector<byte> serializeMsg;
         serializeMsg.clear();
 
@@ -101,7 +100,6 @@ namespace core {
     }
 
     void DeliverSend(struct Peer* p, struct message::RBMessage* recvMsg) {
-
         /* Check if the sentecho is still false */
         if(p->rb.sentecho == true) return;
 
@@ -160,7 +158,6 @@ namespace core {
 
     /* Accountable Confirmer */
 
-    /* Return 1 if found, Return 0 if not found */
     int FindPid(vector<int> pidVector, int elem){
         vector<int>::iterator it = find(pidVector.begin(), pidVector.end(), elem);
         if (it != pidVector.end())   return 1;
@@ -169,13 +166,11 @@ namespace core {
     }
 
     void ShareSign(struct Peer* p) {
-
         auto msg = to_string(p->msg.value);
         /* Create a partial signature for the submit value (p->msg.value) */
         accountable_confirmer_bls::Sign(&p->keyPair, &p->msg.sig, msg.c_str());
     }
 
-    /* Return 1 if it is valid, Return 0 if not valid */
     int ShareVerify(struct message::SubmitMsg* recvMsg) {
 
         auto msg = to_string(recvMsg->value);
@@ -231,12 +226,10 @@ namespace core {
             submitValue = elem.value;
         }
 
-        auto msg = to_string(submitValue).c_str();
-
         blsSignature aggSig;
 
         /* Create an aggregate signature for the collected partial signatures */
-        accountable_confirmer_bls::AggSign(&aggSig, &sigVec[0], strlen(msg));
+        accountable_confirmer_bls::AggSign(&aggSig, &sigVec[0], strlen(to_string(submitValue).c_str()));
 
         p->aggSignMsg = {.type = message::aggSign, .pid = p->id, .value = submitValue, .aggSig = aggSig};
     }
@@ -260,7 +253,6 @@ namespace core {
         for (int i = 0; i < pub_sz; i++)  vPub.push_back(bufPub[i]);
 
         /* Serialize Submit message */
-//        string message_type = "submit";
         auto pre = (boost::format("%1%::%2%::%3%::%4%::%5%::") % p->msg.type % to % p->msg.pid % p->msg.value % sig_sz ).str();
         for (char i : pre) serializeMsg.push_back(byte(i));
         serializeMsg.insert(serializeMsg.end(), vSig.begin(), vSig.end());
@@ -274,20 +266,20 @@ namespace core {
         string submit_message(reinterpret_cast<const char*>(serializeMsg.data()), serializeMsg.size());
         submit_message += '\n';
 
-        /* First we need to go through reliable broadcast */
+        /* Check if needed reliable broadcast or not */
+        if (p->isReliableBroadcast) {
+            /* Init the rbMsg */
+            p->rbMsg = {.type = message::none, .pid = p->id, .content = submit_message};
+            BroadcastSend(p);
 
-        /* Init the rbMsg */
-        p->rbMsg = {.type = message::none, .pid = p->id, .content = submit_message};
-        BroadcastSend(p);
-
-        while(!p->rb.delivered) {
-            // keep waiting
+            while(!p->rb.delivered) {
+                // keep waiting
+            }
+            printf("[%d] You can start to deliver!!\n", p->id);
         }
-        printf("[%d] You can start to deliver!!\n", p->id);
 
-        /* After going through reliable broadcast, each peer can finally start sending message */
 
-        printf("[BroadcastSubmitMessage] client [%d] Send submit message to [%d]\n",p->id, to);
+        /* Start sending submit message */
         p->clients[p->id - 1].Post(submit_message);
         usleep(100000);
         return;
@@ -306,7 +298,6 @@ namespace core {
         for (int i = 0; i < sig_sz; i++) vSig.push_back(bufSig[i]);
 
         /* Serialize SubmitAggSign */
-//        string message_type = "aggSign";
         auto pre = (boost::format("%1%::%2%::%3%::%4%::%5%::") % p->aggSignMsg.type % to % p->aggSignMsg.pid % p->aggSignMsg.value % sig_sz ).str();
         for (char i : pre) serializeAggSign.push_back(byte(i));
         serializeAggSign.insert(serializeAggSign.end(), vSig.begin(), vSig.end());
@@ -413,32 +404,6 @@ namespace core {
 
     }
 
-//    void ParseMessage(struct Peer* p) {
-//
-//        while(!p->detectConflict && p->rb.delivered) {
-//
-//            while(!recvRawMessage.empty()) {
-//                string message = recvRawMessage.front();
-//                int start = 0; int end = (int)message.find("::");
-//                string message_type(message.substr(start, end));
-//                string trim_message = message.substr(end+2, message.length());
-//
-//                if (message_type == "submit") {
-//                    printf("parsing Submit Message\n");
-//                    ParseSubmitMessage(p, trim_message);
-//                } else if(message_type == "aggSign") {
-//                    printf("parsing Agg Sign\n");
-//                    ParseAggSignature(p, trim_message);
-//                } else {
-//                    // couldn't parse
-//                }
-//
-//                recvRawMessage.pop();
-//            }
-//
-//        }
-//    }
-
     void CheckRecvMsg(struct Peer* p){
 
         if (p->ac.from.size() >= NUMBER_OF_PROCESSES - NUMBER_OF_FAULTY_PROCESSES) {
@@ -451,7 +416,7 @@ namespace core {
     void CheckRecvAggSignature(struct Peer* p){
 
         if (p->ac.obtainedAggSignature.size() >= 2) {
-            printf("[CheckRecvAggSignature] receive enough aggSignatures -> progress to detect phase\n");
+            printf("[CheckRecvAggSignature] receive enough aggSignatures -> progress to Detect phase\n");
             DetectConflictAggSignature(p);
         }
 
@@ -471,7 +436,7 @@ namespace core {
 
     /* Main functionality */
 
-    void InitPeer(struct Peer* p, int id, int totalPeers) {
+    void InitPeer(struct Peer* p, int id, int totalPeers, int isReliableBroadcast) {
 
         p->id = id;
 
@@ -482,15 +447,14 @@ namespace core {
         /* Clear the receiving queue */
         while (!recvRawMessage.empty()) recvRawMessage.pop();
 
-        p->recvMsgFlag = false;
         p->detectConflict = false;
+        p->isReliableBroadcast = isReliableBroadcast;
 
         /* Init accountable confirmer */
         AccountableConfirmer();
 
         /* Init reliable broadcast instance */
         ReliableBroadcast();
-
 
         /* Init Clients */
         for (int i = 0; i < totalPeers; i++) {
@@ -505,17 +469,10 @@ namespace core {
         thread runDeliver(CheckIfReady, p);
         p->recvThread.emplace_back(move(runDeliver));
 
-
-//        thread runParse(ParseMessage, p);
-//        p->recvThread.emplace_back(move(runParse));
-
-
         printf("[InitPeer] [%d] Init \n", p->id );
     }
 
     void Submit(struct Peer* p, int value, int to) {
-
-
 
         /* Init the submitMsg */
         p->msg.type = message::submit;
@@ -546,9 +503,6 @@ namespace core {
         /* Broadcast the aggregate signature to everyone */
         BroadcastAggregateSignature(p, 0);
 
-        /* This flag will make the peer start sending aggregate Signature*/
-        p->recvMsgFlag = true;
-
         printf("[Confirm] [%d] Confirmed\n", p->id);
     }
 
@@ -557,7 +511,6 @@ namespace core {
         message::SubmitAggSign tmp = p->ac.obtainedAggSignature.front();
 
         for(vector<message::SubmitAggSign>::size_type i = 1; i != p->ac.obtainedAggSignature.size(); i++) {
-            printf("[DetectConflictAggSignature] [%d] Detecting....\n", p->id);
 
             if(!(p->ac.obtainedAggSignature[i] == tmp) && p->ac.confirm){
                 printf("[DetectConflictAggSignature] [%d] REACH THE PROOF!!!\n", p->id);
