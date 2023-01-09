@@ -3,7 +3,6 @@
 #include <iostream>
 
 
-
 using boost::asio::ip::tcp;
 using net_error = boost::system::error_code;
 
@@ -19,38 +18,16 @@ TCPConnection::TCPConnection(tcp::socket&& socket) : _socket(std::move(socket)){
 }
 
 void TCPConnection::Start(MessageHandler&& messageHandler, ErrorHandler&& errorHandler) {
-//        // every operation is on our share pointer
-//        auto strongThis = shared_from_this();
-//        // write out through the socket
-//        // the 3rd parameter is a binding to a function (lambda function)
-//        io::async_write(_socket, io::buffer(_message),
-//                                 [strongThis](const boost::system::error_code& error, size_t bytesTransferred) {
-//            if (error) {
-//                std::cout << "Fail to send message\n";
-//            } else {
-//                std::cout << "Send " << bytesTransferred << " bytes of data\n";
-//            }
-//        });
-//        io::streambuf buffer;;
-//
-//        _socket.async_receive(buffer.prepare(512), [this](const boost::system::error_code& error, size_t bytesTransferred) {
-//            if (error == boost::asio::error::eof) {
-//                // server cut the connection
-//                std::cout << "Client disconnected properly\n";
-//            } else if (error) {
-//                std::cout << "Client disconnected in bad way\n";
-//            }
-//        });
     _messageHandler = std::move(messageHandler);
     _errorHandler = std::move(errorHandler);
+
     // Start the asyncRead
     asyncRead();
 
 }
 
 void TCPConnection::Post(const std::string& message) {
-    // when request to write a message to the client ->
-    // 1. keep it in a queue
+    // when request to write a message to the client -> keep it in a queue
 
     bool queueIdle = _outgoingMessage.empty();
     _outgoingMessage.push(message);
@@ -81,11 +58,9 @@ void TCPConnection::onRead(net_error ec, size_t bytesTransferred) {
 
     std::stringstream message;
     // .rdbuf() is going to consume the bytes on the buffer
-//    message << _username << ": " << std::istream(&_streamBuf).rdbuf();
     message << std::istream(&_streamBuf).rdbuf();
 
     // show the message from the client on the screen
-    //add message handler
     _messageHandler(message.str());
     asyncRead();
 }
