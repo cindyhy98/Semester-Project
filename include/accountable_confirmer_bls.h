@@ -22,8 +22,6 @@ namespace accountable_confirmer_bls {
 
     void KeyGen(Key* k);
 
-//    void SerializeSignature(blsSignature sig);
-
     void Sign(Key* k, blsSignature* sig, const char* msg);
 
     /* return 1 if it is valid else 0 */
