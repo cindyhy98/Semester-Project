@@ -5,11 +5,12 @@
 #include <thread>
 #include <fstream>
 #include <queue>
+#include <ctime>
 
 /* Internal Library */
 #include "core.h"
 
-#define NUMBER_OF_CONFIG_VAR 5
+#define NUMBER_OF_CONFIG_VAR 4
 
 using namespace std;
 
@@ -83,8 +84,9 @@ int main(int argc, char *argv[])
     for (int i = 0; i < configParam[2][1]; i++){
         sendto.push_back(configParam[3][i+1]);
     }
-    int isReliableBroadcast = configParam[4][1];
+    int isReliableBroadcast = 1;
 
+    auto start = chrono::steady_clock::now();
 
     /* Start server */
     thread s(StartServer, id+DEFAULT_PORT_NUMBER);
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
     /* Start peer */
     core::Peer P;
     core::InitPeer(&P, id, totalPeers, isReliableBroadcast);
-
+    usleep(100000);
 
     /* Submit */
     int size = sendto.size();
@@ -108,8 +110,15 @@ int main(int argc, char *argv[])
 
     printf("[%d] DETECT CONFLICT!!\n", id);
 
+    auto end = chrono::steady_clock::now();
+    auto diff = chrono::duration <double, milli>(end - start).count();
+
+    printf("[%d] Time elapsed: %f ms\n", id, diff);
+
     core::Close(&P);
     s.join();
+
+
 
     return 0;
 }

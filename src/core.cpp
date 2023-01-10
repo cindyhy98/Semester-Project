@@ -5,7 +5,8 @@
 using namespace std;
 
 namespace core {
-
+    int NUMBER_OF_PROCESSES;
+    int NUMBER_OF_FAULTY_PROCESSES;
     queue<string> recvRawMessage;
 
     void ParseMessage(struct Peer* p) {
@@ -177,10 +178,10 @@ namespace core {
 
         /* Verify the partial signature of the submit value */
         if (accountable_confirmer_bls::Verify(&recvMsg->pub, &recvMsg->sig, msg.c_str())) {
-            printf("[ShareVerify] Successful\n");
+
             return 1;
         } else {
-            printf("[ShareVerify] Fail\n");
+
             return 0;
         }
 
@@ -439,6 +440,8 @@ namespace core {
     void InitPeer(struct Peer* p, int id, int totalPeers, int isReliableBroadcast) {
 
         p->id = id;
+        NUMBER_OF_PROCESSES = totalPeers;
+        NUMBER_OF_FAULTY_PROCESSES = (int)ceil((NUMBER_OF_PROCESSES - 1) / 3);
 
         /* Generate blsPublicKey and blsSecretKey for SubmitMsg Enc/Dec */
         accountable_confirmer_bls::Init();

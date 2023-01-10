@@ -22,14 +22,6 @@
 #include "tcp_server.h"
 #include "tcp_client.h"
 
-
-
-#define NUMBER_OF_PROCESSES 4
-#define NUMBER_OF_FAULTY_PROCESSES 1
-
-#define MAX_PEERS_NUMBER 20
-#define DEFAULT_PORT_NUMBER 8000
-
 using namespace std;
 
 class AccountableConfirmer {
