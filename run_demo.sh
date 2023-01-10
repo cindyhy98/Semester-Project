@@ -1,11 +1,10 @@
 #!/bin/bash
 
-rep=({1..4})
-if [[ $# -gt 0 ]]; then
-    rep=($@)
-fi
+NUMBER_OF_PEERS=4
 
-for i in "${rep[@]}"; do
+# shellcheck disable=SC2004
+for ((i = 1; i <= $NUMBER_OF_PEERS; i++));
+do
     echo "Running peer $i"
-    ./accountable-confirmer ../config/peer${i}.conf &
+    ./accountable-confirmer ../config/${NUMBER_OF_PEERS}_peers/peer${i}.conf &
 done
